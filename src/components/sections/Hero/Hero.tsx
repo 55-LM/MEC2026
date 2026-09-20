@@ -32,8 +32,8 @@ function measureInk(text: string, fontFamily: string, fontSize: number) {
 
   return {
     width: Math.max(metrics.width + tracking, 1),
-    /* Extra bottom slack so scaled glyphs aren't clipped. */
-    height: Math.max(ascent + descent, 1) * 1.1,
+    /* Slight bottom slack so scaled glyphs aren't clipped. */
+    height: Math.max(ascent + descent, 1) * 1.06,
   };
 }
 
@@ -81,12 +81,15 @@ function TitleLine({
 
       word.style.fontSize = `${fontSize}px`;
       word.style.letterSpacing = `${LETTER_SPACING_EM}em`;
-      const inkW = Math.max(word.scrollWidth, measureInk(text, family, fontSize).width, 1);
-      const inkH = Math.max(word.scrollHeight, measureInk(text, family, fontSize).height, 1);
+      const ink = measureInk(text, family, fontSize);
+      /* Width can use layout; height must stay on glyph ink so scaleY fills the row. */
+      const inkW = Math.max(word.scrollWidth, ink.width, 1);
+      const inkH = Math.max(ink.height, 1);
 
       setFit({
         x: frame.clientWidth / inkW,
-        y: frame.clientHeight / inkH,
+        /* Keep a hair of room so the bottom row isn’t clipped by rounding */
+        y: (frame.clientHeight / inkH) * 0.98,
         inkW,
         inkH,
         fontSize,

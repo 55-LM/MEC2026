@@ -59,24 +59,27 @@
   margin: 0;
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: 0;
   width: 100%;
   height: clamp(20rem, 54vh, 38rem);
-  padding-bottom: clamp(0.35rem, 1.2vh, 0.85rem);
+  padding: 0;
   box-sizing: border-box;
   color: #ffffff;
-  overflow: hidden;
+  /* Allow last-row glyph bottoms to paint; x still clipped by .hero */
+  overflow: visible;
 }
 
 .hero__title-cycle {
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: 0;
   width: 100%;
   max-width: 100%;
   min-width: 0;
   height: 100%;
   min-height: 0;
+  overflow: visible;
+  padding: 0;
 }
 
 .hero__title-slot {
@@ -87,7 +90,16 @@
   min-height: 0;
   width: 100%;
   max-width: 100%;
-  overflow: hidden;
+  padding: 0;
+  margin: 0;
+  overflow: visible;
+}
+
+.hero__title-slot:last-child {
+  padding: 0;
+  margin: 0;
+  /* Keep the bottom row fully visible under vertical stretch */
+  overflow: visible;
 }
 
 .hero__title-line {
@@ -100,7 +112,7 @@
   min-width: 0;
   height: 100%;
   min-height: 0;
-  overflow: hidden;
+  overflow: visible;
   font-family: var(--font-display);
   will-change: transform, opacity;
 }
@@ -115,7 +127,7 @@
   font-weight: 400;
   font-kerning: normal;
   letter-spacing: -0.03em;
-  line-height: 1;
+  line-height: 0.85;
   text-transform: uppercase;
   color: #ffffff;
   margin: 0;
@@ -128,8 +140,8 @@
   left: 0;
   top: 0;
   display: flex;
-  align-items: center;
-  overflow: hidden;
+  align-items: flex-start;
+  overflow: visible;
   transform-origin: left top;
   will-change: transform;
 }
@@ -242,8 +254,8 @@
 
   .hero__title {
     height: clamp(14rem, 40vh, 23rem);
-    padding-bottom: 0.4rem;
-    gap: 2px;
+    padding: 0;
+    gap: 0;
   }
 }
 
@@ -261,7 +273,7 @@
 
   .hero__title {
     height: clamp(10.5rem, 46vh, 17rem);
-    padding-bottom: 0.3rem;
-    gap: 2px;
+    padding: 0;
+    gap: 0;
   }
 }
