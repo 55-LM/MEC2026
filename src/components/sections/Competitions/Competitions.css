@@ -1,0 +1,105 @@
+.competitions__grid {
+  display: grid;
+  gap: 1.25rem;
+  grid-template-columns: 1fr;
+}
+
+.competition-card {
+  display: flex;
+  flex-direction: column;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  transition:
+    transform var(--duration-normal) var(--ease-out),
+    border-color var(--duration-normal) var(--ease-out),
+    box-shadow var(--duration-normal) var(--ease-out);
+}
+
+.competition-card:hover,
+.competition-card:focus-within {
+  border-color: color-mix(in srgb, var(--card-accent) 55%, var(--color-border));
+  box-shadow: var(--shadow-md);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .competition-card:hover {
+    transform: translateY(-4px);
+  }
+}
+
+.competition-card__media {
+  position: relative;
+  aspect-ratio: 16 / 10;
+  background: #121212;
+}
+
+.competition-card__media img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.competition-card__icon {
+  position: absolute;
+  top: 0.75rem;
+  left: 0.75rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  border-radius: var(--radius-sm);
+  background: rgba(8, 8, 8, 0.75);
+  color: var(--card-accent);
+  border: 1px solid color-mix(in srgb, var(--card-accent) 40%, transparent);
+}
+
+.competition-card__body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding: 1.15rem;
+  flex: 1;
+}
+
+.competition-card__body h3 {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: var(--text-h3);
+  line-height: 1.25;
+}
+
+.competition-card__body p {
+  margin: 0;
+  flex: 1;
+}
+
+.competition-card__docs {
+  display: grid;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+}
+
+.competition-card__docs .btn {
+  width: 100%;
+}
+
+@media (min-width: 600px) {
+  .competitions__grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 1024px) {
+  .competitions__grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (max-height: 500px) and (orientation: landscape) and (max-width: 900px) {
+  .competitions__grid {
+    grid-template-columns: 1fr;
+  }
+}

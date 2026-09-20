@@ -1,0 +1,267 @@
+.hero {
+  position: relative;
+  z-index: 1;
+  min-height: min(100svh, 56rem);
+  display: flex;
+  align-items: center;
+  overflow: hidden;
+  /* Clear the sticky header so nothing sits underneath it */
+  padding-top: calc(var(--header-height) + var(--safe-top) + clamp(1.25rem, 3vh, 2.5rem));
+  padding-bottom: clamp(3rem, 10vh, 6rem);
+  background: transparent;
+}
+
+/* Larger gear — more of it visible, overlaps the title */
+.hero__gear {
+  position: absolute;
+  left: 0;
+  top: 43%;
+  z-index: 2;
+  height: 125%;
+  width: auto;
+  aspect-ratio: 1;
+  max-width: none;
+  transform: translate(-44%, -50%);
+  pointer-events: none;
+  user-select: none;
+}
+
+.hero__gear-img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  opacity: 1;
+}
+
+.hero__inner {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: none;
+  margin-inline: 0;
+  padding-left: clamp(8rem, 34vw, 24rem);
+  padding-right: clamp(1rem, 3vw, 2.5rem);
+  box-sizing: border-box;
+  transform: translateY(-2rem);
+}
+
+.hero__title-block {
+  position: relative;
+  width: 100%;
+}
+
+/*
+  Ultra-wide stretched block — full viewport width,
+  shorter rows so horizontal stretch dominates (like the reference).
+*/
+.hero__title {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  width: 100%;
+  height: clamp(20rem, 54vh, 38rem);
+  padding-bottom: clamp(0.35rem, 1.2vh, 0.85rem);
+  box-sizing: border-box;
+  color: #ffffff;
+  overflow: hidden;
+}
+
+.hero__title-cycle {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  height: 100%;
+  min-height: 0;
+}
+
+.hero__title-slot {
+  position: relative;
+  display: flex;
+  flex: 1 1 0;
+  min-width: 0;
+  min-height: 0;
+  width: 100%;
+  max-width: 100%;
+  overflow: hidden;
+}
+
+.hero__title-line {
+  position: relative;
+  display: block;
+  flex: 1 1 auto;
+  align-self: stretch;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  height: 100%;
+  min-height: 0;
+  overflow: hidden;
+  font-family: var(--font-display);
+  will-change: transform, opacity;
+}
+
+.hero__title-word {
+  display: inline-block;
+  height: auto;
+  max-width: none;
+  box-sizing: border-box;
+  white-space: nowrap;
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-kerning: normal;
+  letter-spacing: -0.03em;
+  line-height: 1;
+  text-transform: uppercase;
+  color: #ffffff;
+  margin: 0;
+  padding: 0;
+  overflow: visible;
+}
+
+.hero__title-scaler {
+  position: absolute;
+  left: 0;
+  top: 0;
+  display: flex;
+  align-items: center;
+  overflow: hidden;
+  transform-origin: left top;
+  will-change: transform;
+}
+
+.hero__meta {
+  position: absolute;
+  top: -0.85rem;
+  right: 2%;
+  left: auto;
+  z-index: 2;
+  margin: 0;
+  padding: 0;
+  width: max-content;
+  max-width: 100%;
+  box-sizing: border-box;
+  font-family: var(--font-body);
+  font-weight: 400;
+  font-size: clamp(0.8rem, 1.35vw, 1.05rem);
+  line-height: 1.3;
+  text-align: right;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+  color: #b0b0b0;
+  pointer-events: none;
+}
+
+.hero__stickers {
+  list-style: none;
+  margin: 2.25rem 0 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 1.4rem 1.75rem;
+  overflow: visible;
+}
+
+.hero__sticker {
+  display: inline-flex;
+  transform: rotate(var(--sticker-angle, 0deg));
+  z-index: 1;
+  overflow: visible;
+  padding-bottom: 0.65rem;
+}
+
+.hero__sticker:hover {
+  z-index: 5;
+}
+
+.hero__sticker a,
+.hero__sticker-static {
+  display: block;
+  line-height: 0;
+  color: inherit;
+  text-decoration: none;
+  overflow: visible;
+  cursor: pointer;
+}
+
+.hero__sticker-peel {
+  --sticker-width: clamp(11.5rem, 22vw, 19.5rem);
+}
+
+.hero__sticker-peel .sticker-image {
+  width: clamp(11.5rem, 22vw, 19.5rem);
+}
+
+.hero__sticker--medium .hero__sticker-peel {
+  --sticker-width: clamp(13.5rem, 25vw, 22rem);
+}
+
+.hero__sticker--medium .hero__sticker-peel .sticker-image {
+  width: clamp(13.5rem, 25vw, 22rem);
+}
+
+.hero__sticker--larger .hero__sticker-peel {
+  --sticker-width: clamp(16rem, 29vw, 26rem);
+}
+
+.hero__sticker--larger .hero__sticker-peel .sticker-image {
+  width: clamp(16rem, 29vw, 26rem);
+}
+
+.hero__sticker--xlarge .hero__sticker-peel {
+  --sticker-width: clamp(18.5rem, 33vw, 30rem);
+}
+
+.hero__sticker--xlarge .hero__sticker-peel .sticker-image {
+  width: clamp(18.5rem, 33vw, 30rem);
+}
+
+.hero__sticker--xlarge .sticker-stroke {
+  left: 8%;
+  right: auto;
+  width: 92%;
+  min-width: 0;
+  transform: translateX(0);
+}
+
+@media (max-width: 700px) {
+  .hero__gear {
+    height: 130%;
+    transform: translate(-46%, -50%);
+  }
+
+  .hero__inner {
+    padding-left: clamp(5rem, 38vw, 12rem);
+  }
+
+  .hero__title {
+    height: clamp(14rem, 40vh, 23rem);
+    padding-bottom: 0.4rem;
+    gap: 2px;
+  }
+}
+
+@media (max-height: 500px) and (orientation: landscape) {
+  .hero {
+    min-height: 0;
+    padding-top: calc(var(--header-height) + var(--safe-top) + 0.75rem);
+    padding-bottom: 1.5rem;
+  }
+
+  .hero__gear {
+    height: 120%;
+    top: 48%;
+  }
+
+  .hero__title {
+    height: clamp(10.5rem, 46vh, 17rem);
+    padding-bottom: 0.3rem;
+    gap: 2px;
+  }
+}

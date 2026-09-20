@@ -1,0 +1,322 @@
+.about {
+  position: relative;
+  z-index: 1;
+  background: transparent;
+  padding: 0;
+  overflow: hidden;
+}
+
+.about-scroll {
+  position: relative;
+  width: 100%;
+  min-height: 100svh;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  padding-top: calc(var(--header-height) + var(--safe-top) + 1.35rem);
+  padding-bottom: clamp(0.5rem, 1.5vh, 1.25rem);
+  box-sizing: border-box;
+  gap: 0.35rem;
+}
+
+/* Chapter stickers + body sit above the collage (not over it) */
+.about-scroll__copy {
+  position: relative;
+  z-index: 3;
+  flex: 0 0 auto;
+  width: min(48rem, calc(100% - 2rem));
+  margin: 0.25rem auto 0;
+  text-align: center;
+  pointer-events: none;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.about-scroll__sticker-stack {
+  position: relative;
+  width: min(100%, clamp(22rem, 64vw, 40rem));
+  min-height: clamp(5.5rem, 14vh, 8.5rem);
+  display: grid;
+  place-items: center;
+}
+
+.about-scroll__sticker-slot {
+  --sticker-tilt: -6deg;
+  --sticker-size: 100%;
+  grid-area: 1 / 1;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  opacity: 0;
+  visibility: hidden;
+  will-change: transform, opacity;
+  transform-origin: center center;
+}
+
+.about-scroll__sticker-slot:first-child,
+.about-scroll__sticker-slot.is-on {
+  opacity: 1;
+  visibility: visible;
+}
+
+.about-scroll__title-sticker {
+  display: block;
+  width: var(--sticker-size);
+  max-width: none;
+  height: auto;
+  max-height: min(32vh, var(--sticker-max-h, 14rem));
+  object-fit: contain;
+  transform: rotate(var(--sticker-tilt));
+  filter: drop-shadow(0 10px 22px rgba(0, 0, 0, 0.5));
+  user-select: none;
+  pointer-events: none;
+}
+
+.about-scroll__bodies {
+  position: relative;
+  width: min(34rem, 100%);
+  min-height: 3.75rem;
+}
+
+.about-scroll__chapter {
+  position: absolute;
+  inset-inline: 0;
+  top: 0;
+  opacity: 0;
+}
+
+.about-scroll__chapter:first-child {
+  opacity: 1;
+  position: relative;
+}
+
+.about-scroll__title-sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.about-scroll__body {
+  margin: 0;
+  font-family: var(--font-body);
+  font-size: clamp(0.95rem, 1.9vw, 1.15rem);
+  line-height: 1.45;
+  color: var(--color-secondary);
+  text-shadow: 0 1px 12px rgba(0, 0, 0, 0.45);
+}
+
+.about-scroll__track {
+  position: relative;
+  z-index: 1;
+  flex: 0 0 auto;
+  display: flex;
+  align-items: flex-start;
+  width: max-content;
+  min-height: 0;
+  will-change: transform;
+  padding-inline: clamp(1.25rem, 4vw, 3.5rem);
+  margin-top: 0.55rem;
+}
+
+.about-scroll__collage {
+  display: flex;
+  flex-wrap: nowrap;
+  align-items: center;
+  gap: clamp(1rem, 2.4vw, 2.1rem);
+  min-height: 0;
+  padding-block: 0;
+}
+
+.about-polaroid-slot {
+  --collage-offset: 0px;
+  flex: 0 0 auto;
+  margin-top: var(--collage-offset);
+}
+
+.about-polaroid-filter {
+  position: absolute;
+  width: 0;
+  height: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.about-polaroid {
+  --polaroid-tilt: 0deg;
+  --frame-w: 1066;
+  --frame-h: 1409;
+  --window-left: 50;
+  --window-top: 156;
+  --window-w: 965;
+  --window-h: 984;
+  position: relative;
+  margin: 0;
+  width: clamp(13rem, 26vw, 20rem);
+  aspect-ratio: var(--frame-w) / var(--frame-h);
+  transform: rotate(var(--polaroid-tilt));
+}
+
+.about-polaroid__photo {
+  position: absolute;
+  z-index: 0;
+  left: calc(var(--window-left) / var(--frame-w) * 100%);
+  top: calc(var(--window-top) / var(--frame-h) * 100%);
+  width: calc(var(--window-w) / var(--frame-w) * 100%);
+  height: calc(var(--window-h) / var(--frame-h) * 100%);
+  object-fit: cover;
+  object-position: center center;
+  border-radius: 1px;
+  filter: url('#about-polaroid-vintage') contrast(1.06) saturate(1.06);
+}
+
+/* Extra warm edge wash + speckled grain on top of the photo */
+.about-polaroid__fx {
+  position: absolute;
+  z-index: 1;
+  left: calc(var(--window-left) / var(--frame-w) * 100%);
+  top: calc(var(--window-top) / var(--frame-h) * 100%);
+  width: calc(var(--window-w) / var(--frame-w) * 100%);
+  height: calc(var(--window-h) / var(--frame-h) * 100%);
+  border-radius: 1px;
+  pointer-events: none;
+  background:
+    url("data:image/svg+xml,%3Csvg viewBox='0 0 180 180' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='1.1' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23g)' opacity='0.55'/%3E%3C/svg%3E"),
+    radial-gradient(
+      ellipse at 50% 38%,
+      rgba(255, 245, 220, 0.22) 0%,
+      transparent 58%
+    ),
+    linear-gradient(
+      180deg,
+      rgba(255, 230, 190, 0.16) 0%,
+      transparent 40%,
+      rgba(60, 30, 12, 0.14) 100%
+    );
+  background-size: 120px 120px, auto, auto;
+  mix-blend-mode: soft-light;
+  opacity: 0.85;
+  box-shadow: inset 0 0 16px rgba(35, 18, 6, 0.18);
+}
+
+.about-polaroid__frame {
+  position: relative;
+  z-index: 2;
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: fill;
+  pointer-events: none;
+  user-select: none;
+  filter: drop-shadow(0 14px 28px rgba(0, 0, 0, 0.55));
+}
+
+/* Reduced-motion: stack collage + show all chapters */
+.about--static .about-scroll {
+  min-height: 0;
+  justify-content: flex-start;
+  gap: 2rem;
+  padding-block: clamp(2.5rem, 8vh, 4.5rem);
+}
+
+.about--static .about-scroll__copy {
+  position: relative;
+  width: min(42rem, 100%);
+  margin-inline: auto;
+  pointer-events: auto;
+}
+
+.about--static .about-scroll__sticker-stack {
+  aspect-ratio: auto;
+  min-height: 7rem;
+}
+
+.about--static .about-scroll__sticker-slot {
+  opacity: 1 !important;
+  visibility: visible !important;
+  transform: none !important;
+}
+
+.about--static .about-scroll__chapter {
+  position: relative;
+  opacity: 1 !important;
+  visibility: visible !important;
+  transform: none !important;
+}
+
+.about--static .about-scroll__bodies {
+  display: grid;
+  gap: 1.25rem;
+  min-height: 0;
+}
+
+.about--static .about-scroll__track {
+  width: 100%;
+  transform: none !important;
+  padding-inline: clamp(1rem, 4vw, 2rem);
+}
+
+.about--static .about-scroll__collage {
+  flex-wrap: wrap;
+  justify-content: center;
+  min-height: 0;
+}
+
+@media (max-width: 700px) {
+  .about-scroll__collage {
+    gap: 0.75rem;
+    min-height: 0;
+  }
+
+  .about-polaroid {
+    width: clamp(9.5rem, 42vw, 13rem);
+  }
+
+  .about-scroll__sticker-stack {
+    width: min(100%, clamp(18rem, 88vw, 28rem));
+    min-height: clamp(4.75rem, 12vh, 7rem);
+  }
+
+  .about-scroll__title-sticker {
+    max-height: min(20vh, 10rem);
+  }
+}
+
+@media (max-height: 500px) and (orientation: landscape) {
+  .about-scroll {
+    padding-top: calc(var(--header-height) + var(--safe-top));
+    padding-bottom: 0.5rem;
+    gap: 0;
+  }
+
+  .about-scroll__sticker-stack {
+    width: min(100%, clamp(14rem, 42vw, 22rem));
+    min-height: clamp(3.5rem, 12vh, 5.5rem);
+  }
+
+  .about-scroll__title-sticker {
+    max-height: min(16vh, 6.5rem);
+  }
+
+  .about-scroll__body {
+    font-size: 0.9rem;
+    line-height: 1.35;
+  }
+
+  .about-scroll__collage {
+    min-height: 0;
+    padding-block: 0.35rem;
+  }
+
+  .about-polaroid {
+    width: clamp(8.5rem, 20vw, 12rem);
+  }
+}

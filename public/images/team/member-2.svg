@@ -1,0 +1,6 @@
+﻿<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 500" role="img">
+  <rect width="400" height="500" fill="#1e1e1e"/>
+  <circle cx="200" cy="190" r="70" fill="#333"/>
+  <ellipse cx="200" cy="380" rx="110" ry="90" fill="#333"/>
+  <text x="200" y="480" text-anchor="middle" font-family="Arial" font-size="18" fill="#9a9a92">Team 2</text>
+</svg>

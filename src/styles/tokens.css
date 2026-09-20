@@ -1,0 +1,85 @@
+:root {
+  /* Background & grid — continuous static surface */
+  --color-background: #080808;
+  --color-grid: 255, 255, 255;
+  --grid-opacity: 0.045;
+  --grid-size: 48px;
+  --grid-line-thickness: 2.5px;
+  --noise-opacity: 0.1;
+  --noise-size: 180px;
+
+  /* Surfaces */
+  --color-surface: rgba(22, 22, 22, 0.92);
+  --color-surface-elevated: rgba(32, 32, 32, 0.96);
+  --color-surface-translucent: rgba(18, 18, 18, 0.72);
+
+  /* Text & accents */
+  --color-primary: #f5f5f0;
+  --color-secondary: #c8c8c0;
+  --color-accent: #d4a24a;
+  --color-accent-hover: #e0b45e;
+  --color-text: #f5f5f0;
+  --color-text-muted: #9a9a92;
+  --color-border: rgba(255, 255, 255, 0.12);
+  --color-border-strong: rgba(255, 255, 255, 0.22);
+
+  /* Polaroid / sticker */
+  --color-polaroid: #f4f0e6;
+  --color-polaroid-shadow: rgba(0, 0, 0, 0.45);
+  --color-sticker: #f7f4ec;
+
+  /* Typography */
+  --font-display: 'Brigends', 'Segoe UI', sans-serif;
+  --font-body: 'Lexend Deca', 'Segoe UI', sans-serif;
+  --font-hand: 'Lexend Deca', 'Segoe UI', sans-serif;
+
+  --text-hero: clamp(2.4rem, 6vw, 4.75rem);
+  --text-h1: clamp(2rem, 4.5vw, 3.25rem);
+  --text-h2: clamp(1.5rem, 3vw, 2.25rem);
+  --text-h3: clamp(1.15rem, 2vw, 1.5rem);
+  --text-body: clamp(0.95rem, 1.2vw, 1.0625rem);
+  --text-small: clamp(0.8rem, 1vw, 0.875rem);
+
+  /* Layout */
+  --container-max: 72rem;
+  --container-padding: clamp(1rem, 4vw, 2rem);
+  --section-padding-y: clamp(3.5rem, 8vw, 6.5rem);
+  --header-height: 4.25rem;
+  --header-height-compact: 3.5rem;
+
+  /* Radii & shadows */
+  --radius-sm: 0.375rem;
+  --radius-md: 0.625rem;
+  --radius-lg: 1rem;
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.35);
+  --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.45);
+  --shadow-lg: 0 16px 40px rgba(0, 0, 0, 0.55);
+  --shadow-polaroid: 0 10px 28px var(--color-polaroid-shadow);
+
+  /* Motion */
+  --duration-fast: 160ms;
+  --duration-normal: 280ms;
+  --duration-slow: 480ms;
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-in-out: cubic-bezier(0.45, 0, 0.55, 1);
+
+  /* Safe areas */
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+  --safe-left: env(safe-area-inset-left, 0px);
+  --safe-right: env(safe-area-inset-right, 0px);
+}
+
+@media (max-width: 768px) {
+  :root {
+    --grid-size: 36px;
+    --header-height: 3.75rem;
+  }
+}
+
+@media (max-height: 500px) and (orientation: landscape) {
+  :root {
+    --header-height: var(--header-height-compact);
+    --section-padding-y: clamp(2rem, 6vh, 3.5rem);
+  }
+}

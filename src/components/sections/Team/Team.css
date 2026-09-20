@@ -1,0 +1,177 @@
+.team__layout {
+  display: grid;
+  gap: 1.5rem;
+  align-items: start;
+}
+
+.team__carousel-wrap {
+  justify-self: stretch;
+  width: 100%;
+  max-width: 36rem;
+  margin-inline: auto;
+}
+
+.team-carousel {
+  display: grid;
+  gap: 1rem;
+}
+
+.team-carousel__stage {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  max-height: min(34rem, 70svh);
+  min-height: 16rem;
+  outline: none;
+}
+
+.team-carousel__stage.is-compact {
+  max-height: min(24rem, 62svh);
+  min-height: 14rem;
+}
+
+.team-carousel__orbit {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+}
+
+.team-carousel__item {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  margin-left: 0;
+  margin-top: 0;
+  translate: -50% -50%;
+  will-change: transform;
+}
+
+.team-carousel__polaroid {
+  width: 100%;
+  display: block;
+}
+
+.team-carousel__polaroid .polaroid__frame {
+  padding: 0.45rem 0.45rem 1.1rem;
+}
+
+.team-carousel__tooltip {
+  position: absolute;
+  left: 50%;
+  bottom: calc(100% + 0.4rem);
+  transform: translateX(-50%);
+  min-width: 7rem;
+  padding: 0.4rem 0.55rem;
+  border-radius: var(--radius-sm);
+  background: rgba(12, 12, 12, 0.92);
+  border: 1px solid var(--color-border);
+  text-align: center;
+  pointer-events: none;
+}
+
+.team-carousel__tooltip-name {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.team-carousel__tooltip-role {
+  margin: 0.15rem 0 0;
+  font-size: 0.72rem;
+  color: var(--color-text-muted);
+}
+
+.team-carousel__controls {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+}
+
+.team-carousel__nav {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 999px;
+  border: 1px solid var(--color-border);
+  background: var(--color-surface);
+  color: var(--color-text);
+  cursor: pointer;
+}
+
+.team-carousel__nav:hover,
+.team-carousel__nav:focus-visible {
+  border-color: var(--color-accent);
+  color: var(--color-accent);
+}
+
+.team-carousel__caption {
+  min-width: 10rem;
+  text-align: center;
+}
+
+.team-carousel__caption-name {
+  margin: 0;
+  font-family: var(--font-display);
+  font-weight: 700;
+}
+
+.team-carousel__caption-role {
+  margin: 0.2rem 0 0;
+  font-size: var(--text-small);
+}
+
+.team-member-card {
+  display: grid;
+  gap: 0.5rem;
+  justify-items: center;
+}
+
+.team-member-card__name {
+  margin: 0;
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: var(--text-small);
+}
+
+.team-member-card__role {
+  margin: 0;
+  font-size: 0.75rem;
+  color: var(--color-text-muted);
+}
+
+@media (min-width: 960px) {
+  .team__layout {
+    grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+    align-items: end;
+    gap: 2rem;
+    min-height: 28rem;
+  }
+
+  .team__intro {
+    align-self: start;
+    padding-top: 1rem;
+  }
+
+  .team__carousel-wrap {
+    justify-self: end;
+    margin-inline: 0;
+    max-width: 34rem;
+  }
+}
+
+@media (max-height: 500px) and (orientation: landscape) {
+  .team-carousel__stage {
+    aspect-ratio: 16 / 10;
+    max-height: 55svh;
+    min-height: 12rem;
+  }
+
+  .team__layout {
+    min-height: 0;
+  }
+}

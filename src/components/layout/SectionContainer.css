@@ -1,0 +1,11 @@
+.section-container {
+  position: relative;
+  z-index: 1;
+  padding-block: var(--section-padding-y);
+  background: transparent;
+}
+
+.section-container__inner {
+  width: min(100% - (var(--container-padding) * 2), var(--container-max));
+  margin-inline: auto;
+}

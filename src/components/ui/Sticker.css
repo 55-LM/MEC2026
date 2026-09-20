@@ -1,0 +1,33 @@
+.sticker-link {
+  display: inline-block;
+  text-decoration: none;
+}
+
+.sticker-link--static {
+  cursor: default;
+}
+
+.sticker {
+  display: inline-flex;
+  transform: rotate(var(--sticker-rotation, 0deg));
+  filter: drop-shadow(0 6px 14px rgba(0, 0, 0, 0.35));
+}
+
+.sticker__surface {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--color-sticker);
+  border: 3px solid #fff;
+  padding: 0.55rem 0.7rem;
+  min-width: 6.5rem;
+  min-height: 3.25rem;
+}
+
+.sticker__surface img {
+  max-width: 7.5rem;
+  max-height: 2.75rem;
+  width: auto;
+  height: auto;
+  object-fit: contain;
+}

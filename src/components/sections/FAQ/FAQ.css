@@ -1,0 +1,7 @@
+.faq__list {
+  max-width: 48rem;
+}
+
+.faq__list p {
+  margin: 0;
+}

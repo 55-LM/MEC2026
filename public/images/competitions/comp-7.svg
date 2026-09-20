@@ -1,0 +1,5 @@
+﻿<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 500" role="img">
+  <rect width="800" height="500" fill="#1a1a1a"/>
+  <rect x="16" y="16" width="768" height="468" fill="none" stroke="#d4a24a" stroke-opacity="0.3" stroke-width="2"/>
+  <text x="400" y="255" text-anchor="middle" font-family="Arial" font-size="32" fill="#c8c8c0">Stream 7 · clipboard</text>
+</svg>
