@@ -20,6 +20,19 @@ const FIT_SUPER_SAMPLE = 1.25;
 /** Slightly tighter than the font default. */
 const LETTER_SPACING_EM = -0.03;
 
+const DISPLAY_FONT = 'Brigends';
+const DISPLAY_FONT_STACK = `${DISPLAY_FONT}, sans-serif`;
+
+async function ensureDisplayFont() {
+  if (typeof document === 'undefined' || !document.fonts?.load) return;
+  try {
+    await document.fonts.load(`400 ${BASE_FONT_SIZE}px ${DISPLAY_FONT}`);
+    await document.fonts.ready;
+  } catch {
+    /* Measurement still proceeds with whatever is available. */
+  }
+}
+
 function measureInk(text: string, fontFamily: string, fontSize: number) {
   const canvas = document.createElement('canvas');
   const ctx = canvas.getContext('2d');
@@ -41,24 +54,36 @@ function measureInk(text: string, fontFamily: string, fontSize: number) {
   };
 }
 
+function widestUnitWidth(cycles: readonly (readonly string[])[]) {
+  let max = 1;
+  for (const cycle of cycles) {
+    for (const line of cycle) {
+      const { width } = measureInk(line, DISPLAY_FONT_STACK, BASE_FONT_SIZE);
+      if (width > max) max = width;
+    }
+  }
+  return max;
+}
+
 /**
  * Scale each line to fill its row using the font’s natural spacing/kerning.
- * Each line stretches to the full hero width; fit locks after measure so
- * SplitText cannot remasure and jump the width mid-transition.
+ * Waits for Brigends before measuring — cold loads otherwise lock a fallback
+ * scale and overflow until refresh. Skip remasure only after SplitText runs.
  */
 function TitleLine({
   text,
   maxUnitWidth,
+  fontsReady,
   onFit,
 }: {
   text: string;
   maxUnitWidth: number;
+  fontsReady: boolean;
   onFit?: () => void;
 }) {
   const frameRef = useRef<HTMLSpanElement>(null);
   const wordRef = useRef<HTMLSpanElement>(null);
   const fittedRef = useRef(false);
-  const lockedRef = useRef(false);
   const onFitRef = useRef(onFit);
   onFitRef.current = onFit;
   const [fit, setFit] = useState({
@@ -71,22 +96,21 @@ function TitleLine({
 
   useLayoutEffect(() => {
     fittedRef.current = false;
-    lockedRef.current = false;
-  }, [text]);
+  }, [text, fontsReady, maxUnitWidth]);
 
   useLayoutEffect(() => {
     const frame = frameRef.current;
     const word = wordRef.current;
-    if (!frame || !word) return;
+    if (!frame || !word || !fontsReady || maxUnitWidth <= 1) return;
+
+    let cancelled = false;
 
     const measure = () => {
       /* SplitText mutates the word DOM — remasuring would change inkW/scaleX. */
-      if (lockedRef.current || word.querySelector('.hero__split-word')) {
-        return;
-      }
+      if (word.querySelector('.hero__split-word')) return;
 
       const family =
-        getComputedStyle(frame).fontFamily || 'Brigends, sans-serif';
+        getComputedStyle(frame).fontFamily || DISPLAY_FONT_STACK;
       const unit = measureInk(text, family, BASE_FONT_SIZE);
       const refWidth = Math.max(unit.width, maxUnitWidth);
       const fitX = frame.clientWidth / refWidth;
@@ -121,32 +145,25 @@ function TitleLine({
     };
 
     const run = () => {
+      if (cancelled) return;
       measure();
-      void document.fonts.ready.then(() => {
-        measure();
-        if (!fittedRef.current) {
-          fittedRef.current = true;
-          lockedRef.current = true;
-          onFitRef.current?.();
-        }
-      });
+      if (!fittedRef.current && !word.querySelector('.hero__split-word')) {
+        fittedRef.current = true;
+        onFitRef.current?.();
+      }
     };
 
     run();
     const observer = new ResizeObserver(() => {
-      /* Allow remasure on real frame resize only (unlock briefly). */
       if (word.querySelector('.hero__split-word')) return;
-      lockedRef.current = false;
       measure();
-      lockedRef.current = true;
     });
     observer.observe(frame);
-    document.fonts.addEventListener?.('loadingdone', run);
     return () => {
+      cancelled = true;
       observer.disconnect();
-      document.fonts.removeEventListener?.('loadingdone', run);
     };
-  }, [text, maxUnitWidth]);
+  }, [text, maxUnitWidth, fontsReady]);
 
   return (
     <span ref={frameRef} className="hero__title-line">
@@ -182,6 +199,8 @@ export function Hero() {
       ? hero.titleCycles
       : [hero.titleLines as [string, string, string]];
   const [cycleIndex, setCycleIndex] = useState(0);
+  const [fontsReady, setFontsReady] = useState(false);
+  const [maxUnitWidth, setMaxUnitWidth] = useState(1);
   const [, setFitTick] = useState(0);
   const cycleRef = useRef<HTMLSpanElement>(null);
   const fitGateRef = useRef({ cycle: 0, count: 0 });
@@ -193,21 +212,22 @@ export function Hero() {
   }
 
   const linesReady =
+    fontsReady &&
     fitGateRef.current.cycle === cycleIndex &&
     fitGateRef.current.count >= activeLines.length;
 
-  /* Widest line across every phrase — keeps all cycles on the same width scale. */
-  const maxUnitWidth = (() => {
-    let max = 1;
-    const family = 'Brigends, sans-serif';
-    for (const cycle of cycles) {
-      for (const line of cycle) {
-        const { width } = measureInk(line, family, BASE_FONT_SIZE);
-        if (width > max) max = width;
-      }
-    }
-    return max;
-  })();
+  /* Load Brigends before any title measure — cold cache uses a narrow fallback. */
+  useLayoutEffect(() => {
+    let cancelled = false;
+    void ensureDisplayFont().then(() => {
+      if (cancelled) return;
+      setMaxUnitWidth(widestUnitWidth(cycles));
+      setFontsReady(true);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [cycles]);
 
   /* SplitText word shuffle once TitleLine scales are applied. */
   useLayoutEffect(() => {
@@ -359,6 +379,7 @@ export function Hero() {
                   <TitleLine
                     text={line}
                     maxUnitWidth={maxUnitWidth}
+                    fontsReady={fontsReady}
                     onFit={() => {
                       if (fitGateRef.current.cycle !== cycleIndex) return;
                       fitGateRef.current.count += 1;
