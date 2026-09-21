@@ -5,6 +5,7 @@
   pointer-events: none;
   background-color: var(--color-background);
   overflow: hidden;
+  will-change: transform;
 }
 
 .grid-background__pattern {

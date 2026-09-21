@@ -1,15 +1,19 @@
 import { useEffect, useLayoutEffect, useRef, useState, type CSSProperties } from 'react';
-import { AnimatePresence, motion, type Transition } from 'motion/react';
+import { motion, type Transition } from 'motion/react';
+import { gsap } from 'gsap';
+import { SplitText } from 'gsap/SplitText';
 import { siteContent } from '../../../data/siteContent';
 import { usePrefersReducedMotion } from '../../../hooks/usePrefersReducedMotion';
 import StickerPeel from '../../ui/StickerPeel/StickerPeel';
 import './Hero.css';
 
+gsap.registerPlugin(SplitText);
+
 const easeOut = [0.22, 1, 0.36, 1] as const;
-const easeIn = [0.55, 0, 1, 0.45] as const;
 const BASE_FONT_SIZE = 100;
 const TITLE_HOLD_MS = 9000;
 const TITLE_HOLD_FIRST_MS = 20000;
+const TITLE_SHUFFLE_MS = 800;
 /** Extra sharpness headroom on top of the viewport fit scale. */
 const FIT_SUPER_SAMPLE = 1.25;
 
@@ -39,16 +43,24 @@ function measureInk(text: string, fontFamily: string, fontSize: number) {
 
 /**
  * Scale each line to fill its row using the font’s natural spacing/kerning.
+ * Each line stretches to the full hero width; fit locks after measure so
+ * SplitText cannot remasure and jump the width mid-transition.
  */
 function TitleLine({
   text,
   maxUnitWidth,
+  onFit,
 }: {
   text: string;
   maxUnitWidth: number;
+  onFit?: () => void;
 }) {
   const frameRef = useRef<HTMLSpanElement>(null);
   const wordRef = useRef<HTMLSpanElement>(null);
+  const fittedRef = useRef(false);
+  const lockedRef = useRef(false);
+  const onFitRef = useRef(onFit);
+  onFitRef.current = onFit;
   const [fit, setFit] = useState({
     x: 1,
     y: 1,
@@ -58,11 +70,21 @@ function TitleLine({
   });
 
   useLayoutEffect(() => {
+    fittedRef.current = false;
+    lockedRef.current = false;
+  }, [text]);
+
+  useLayoutEffect(() => {
     const frame = frameRef.current;
     const word = wordRef.current;
     if (!frame || !word) return;
 
     const measure = () => {
+      /* SplitText mutates the word DOM — remasuring would change inkW/scaleX. */
+      if (lockedRef.current || word.querySelector('.hero__split-word')) {
+        return;
+      }
+
       const family =
         getComputedStyle(frame).fontFamily || 'Brigends, sans-serif';
       const unit = measureInk(text, family, BASE_FONT_SIZE);
@@ -81,12 +103,14 @@ function TitleLine({
 
       word.style.fontSize = `${fontSize}px`;
       word.style.letterSpacing = `${LETTER_SPACING_EM}em`;
+
+      /* Canvas ink only — scrollWidth shifts after SplitText wraps the word. */
       const ink = measureInk(text, family, fontSize);
-      /* Width can use layout; height must stay on glyph ink so scaleY fills the row. */
-      const inkW = Math.max(word.scrollWidth, ink.width, 1);
+      const inkW = Math.max(ink.width, 1);
       const inkH = Math.max(ink.height, 1);
 
       setFit({
+        /* Stretch each line to the full hero width. */
         x: frame.clientWidth / inkW,
         /* Keep a hair of room so the bottom row isn’t clipped by rounding */
         y: (frame.clientHeight / inkH) * 0.98,
@@ -98,11 +122,24 @@ function TitleLine({
 
     const run = () => {
       measure();
-      void document.fonts.ready.then(measure);
+      void document.fonts.ready.then(() => {
+        measure();
+        if (!fittedRef.current) {
+          fittedRef.current = true;
+          lockedRef.current = true;
+          onFitRef.current?.();
+        }
+      });
     };
 
     run();
-    const observer = new ResizeObserver(run);
+    const observer = new ResizeObserver(() => {
+      /* Allow remasure on real frame resize only (unlock briefly). */
+      if (word.querySelector('.hero__split-word')) return;
+      lockedRef.current = false;
+      measure();
+      lockedRef.current = true;
+    });
     observer.observe(frame);
     document.fonts.addEventListener?.('loadingdone', run);
     return () => {
@@ -145,8 +182,19 @@ export function Hero() {
       ? hero.titleCycles
       : [hero.titleLines as [string, string, string]];
   const [cycleIndex, setCycleIndex] = useState(0);
+  const [, setFitTick] = useState(0);
+  const cycleRef = useRef<HTMLSpanElement>(null);
+  const fitGateRef = useRef({ cycle: 0, count: 0 });
 
   const activeLines = cycles[cycleIndex] ?? hero.titleLines;
+
+  if (fitGateRef.current.cycle !== cycleIndex) {
+    fitGateRef.current = { cycle: cycleIndex, count: 0 };
+  }
+
+  const linesReady =
+    fitGateRef.current.cycle === cycleIndex &&
+    fitGateRef.current.count >= activeLines.length;
 
   /* Widest line across every phrase — keeps all cycles on the same width scale. */
   const maxUnitWidth = (() => {
@@ -161,6 +209,55 @@ export function Hero() {
     return max;
   })();
 
+  /* SplitText word shuffle once TitleLine scales are applied. */
+  useLayoutEffect(() => {
+    const root = cycleRef.current;
+    if (!root || reduced) {
+      root?.classList.remove('hero__title-cycle--pending');
+      return;
+    }
+    if (!linesReady) return;
+
+    const wordEls = root.querySelectorAll('.hero__title-word');
+    if (!wordEls.length) {
+      root.classList.remove('hero__title-cycle--pending');
+      return;
+    }
+
+    const split = SplitText.create(wordEls, {
+      type: 'words',
+      tag: 'span',
+      wordsClass: 'hero__split-word',
+    });
+
+    /* Prime off-state before first paint so full text never flashes. */
+    gsap.set(split.words, {
+      x: () => gsap.utils.random(-80, 80),
+      y: () => gsap.utils.random(-40, 40),
+      autoAlpha: 0,
+      rotation: () => gsap.utils.random(-12, 12),
+      force3D: true,
+    });
+    root.classList.remove('hero__title-cycle--pending');
+
+    const tween = gsap.to(split.words, {
+      x: 0,
+      y: 0,
+      autoAlpha: 1,
+      rotation: 0,
+      stagger: { each: 0.1, from: 'start' },
+      duration: 0.95,
+      ease: 'power3.out',
+      force3D: true,
+    });
+
+    return () => {
+      tween.kill();
+      gsap.killTweensOf(split.words);
+      /* Skip revert — remount handles cleanup; revert flashes unsplit text. */
+    };
+  }, [cycleIndex, reduced, linesReady]);
+
   useEffect(() => {
     if (reduced || cycles.length <= 1) return;
 
@@ -174,9 +271,33 @@ export function Hero() {
 
       timeoutId = window.setTimeout(() => {
         if (!alive) return;
-        currentIndex = (currentIndex + 1) % cycles.length;
-        setCycleIndex(currentIndex);
-        schedule();
+
+        const root = cycleRef.current;
+        const words = root?.querySelectorAll('.hero__split-word, .hero__title-word');
+
+        const advance = () => {
+          if (!alive) return;
+          currentIndex = (currentIndex + 1) % cycles.length;
+          setCycleIndex(currentIndex);
+          schedule();
+        };
+
+        if (!words?.length) {
+          advance();
+          return;
+        }
+
+        gsap.to(words, {
+          x: () => gsap.utils.random(-80, 80),
+          y: () => gsap.utils.random(-40, 40),
+          autoAlpha: 0,
+          rotation: () => gsap.utils.random(-12, 12),
+          stagger: { each: 0.06, from: 'end' },
+          duration: TITLE_SHUFFLE_MS / 1000,
+          ease: 'power2.in',
+          force3D: true,
+          onComplete: advance,
+        });
       }, hold);
     };
 
@@ -224,30 +345,29 @@ export function Hero() {
       <div className="hero__inner">
         <div className="hero__title-block">
           <h1 id="hero-title" className="hero__title" aria-label={activeLines.join(' ')}>
-            <AnimatePresence mode="wait">
-              <motion.span
-                key={cycleIndex}
-                className="hero__title-cycle"
-                initial={reduced ? false : { y: '110%', opacity: 0 }}
-                animate={{ y: '0%', opacity: 1 }}
-                exit={
-                  reduced
-                    ? undefined
-                    : {
-                        y: '-110%',
-                        opacity: 0,
-                        transition: { duration: 0.7, ease: easeIn },
-                      }
-                }
-                transition={{ duration: 0.85, ease: easeOut }}
-              >
-                {activeLines.map((line, i) => (
-                  <span key={i} className="hero__title-slot">
-                    <TitleLine text={line} maxUnitWidth={maxUnitWidth} />
-                  </span>
-                ))}
-              </motion.span>
-            </AnimatePresence>
+            <span
+              key={cycleIndex}
+              ref={cycleRef}
+              className={
+                reduced
+                  ? 'hero__title-cycle'
+                  : 'hero__title-cycle hero__title-cycle--pending'
+              }
+            >
+              {activeLines.map((line, i) => (
+                <span key={`${cycleIndex}-${i}`} className="hero__title-slot">
+                  <TitleLine
+                    text={line}
+                    maxUnitWidth={maxUnitWidth}
+                    onFit={() => {
+                      if (fitGateRef.current.cycle !== cycleIndex) return;
+                      fitGateRef.current.count += 1;
+                      setFitTick((n) => n + 1);
+                    }}
+                  />
+                </span>
+              ))}
+            </span>
           </h1>
 
           <motion.p className="hero__meta" {...fade(0.22)}>

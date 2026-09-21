@@ -46,14 +46,6 @@ const FRAME_WINDOWS: Record<string, AboutPolaroidWindow> = {
     width: 965,
     height: 972,
   },
-  '/images/about/polaroid-frame-5.png': {
-    frameW: 1066,
-    frameH: 1418,
-    left: 50,
-    top: 176,
-    width: 965,
-    height: 973,
-  },
   '/images/about/polaroid-frame-6.png': {
     frameW: 1066,
     frameH: 1387,
@@ -125,14 +117,16 @@ function FramedPolaroid({
           } as CSSProperties
         }
       >
-        <img
-          className="about-polaroid__photo"
-          src={photo.photo}
-          alt={photo.photoAlt}
-          loading="lazy"
-          decoding="async"
-        />
-        <span className="about-polaroid__fx" aria-hidden="true" />
+        <div className="about-polaroid__window">
+          <img
+            className="about-polaroid__photo"
+            src={photo.photo}
+            alt={photo.photoAlt}
+            loading="lazy"
+            decoding="async"
+          />
+          <span className="about-polaroid__fx" aria-hidden="true" />
+        </div>
         <img
           className="about-polaroid__frame"
           src={photo.frame}
@@ -229,6 +223,17 @@ export function About() {
       // Initial state
       applyProgress(0);
 
+      const grid = document.querySelector<HTMLElement>('.grid-background');
+      const freezeGrid = (self: ScrollTrigger) => {
+        if (!grid) return;
+        /* Cancel document scroll so the grid looks locked during the About pin */
+        gsap.set(grid, { y: self.scroll() - self.start });
+      };
+      const releaseGrid = () => {
+        if (!grid) return;
+        gsap.set(grid, { y: 0 });
+      };
+
       ScrollTrigger.create({
         trigger: section,
         start: 'top top',
@@ -237,8 +242,17 @@ export function About() {
         scrub: 0.4,
         anticipatePin: 1,
         invalidateOnRefresh: true,
-        onUpdate: (self) => applyProgress(self.progress),
-        onRefresh: (self) => applyProgress(self.progress),
+        onUpdate: (self) => {
+          applyProgress(self.progress);
+          freezeGrid(self);
+        },
+        onRefresh: (self) => {
+          applyProgress(self.progress);
+          if (self.isActive) freezeGrid(self);
+          else releaseGrid();
+        },
+        onLeave: releaseGrid,
+        onLeaveBack: releaseGrid,
       });
     }, section);
 
@@ -251,6 +265,8 @@ export function About() {
       window.cancelAnimationFrame(raf);
       window.clearTimeout(timer);
       window.removeEventListener('load', refresh);
+      const grid = document.querySelector<HTMLElement>('.grid-background');
+      if (grid) gsap.set(grid, { y: 0 });
       ctx.revert();
     };
   }, [reduced, aboutAlbumPhotos.length, aboutChapters.length]);
@@ -267,10 +283,11 @@ export function About() {
         <defs>
           <filter
             id="about-polaroid-vintage"
-            x="-5%"
-            y="-5%"
-            width="110%"
-            height="110%"
+            x="0%"
+            y="0%"
+            width="100%"
+            height="100%"
+            filterUnits="objectBoundingBox"
             colorInterpolationFilters="sRGB"
           >
             <feTurbulence

@@ -42,7 +42,9 @@ const POLAROID_ROTATIONS = [-5, 4, -3, 6, -4, 3, -2, 5] as const;
 
 function buildAlbumPhotos(files: readonly string[]): AboutScrollPhoto[] {
   return files.map((file, i) => {
-    const frame = (i % 8) + 1;
+    // Cycle frames 1–8, but use frame 1 wherever frame 5 would appear
+    let frame = (i % 8) + 1;
+    if (frame === 5) frame = 1;
     return {
       id: `about-album-${file.replace(/\.[^.]+$/, '')}`,
       photo: `/images/about/${file}`,

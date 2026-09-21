@@ -82,6 +82,11 @@
   padding: 0;
 }
 
+/* Hide until SplitText + from-state are primed (avoids first-frame flash). */
+.hero__title-cycle--pending {
+  visibility: hidden;
+}
+
 .hero__title-slot {
   position: relative;
   display: flex;
@@ -133,6 +138,11 @@
   margin: 0;
   padding: 0;
   overflow: visible;
+}
+
+.hero__split-word {
+  display: inline-block;
+  will-change: transform, opacity;
 }
 
 .hero__title-scaler {

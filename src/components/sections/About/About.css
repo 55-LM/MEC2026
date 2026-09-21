@@ -165,28 +165,36 @@
   transform: rotate(var(--polaroid-tilt));
 }
 
-.about-polaroid__photo {
+/* Photo + vintage FX share one clipped opening */
+.about-polaroid__window {
   position: absolute;
   z-index: 0;
   left: calc(var(--window-left) / var(--frame-w) * 100%);
   top: calc(var(--window-top) / var(--frame-h) * 100%);
   width: calc(var(--window-w) / var(--frame-w) * 100%);
   height: calc(var(--window-h) / var(--frame-h) * 100%);
+  border-radius: 1px;
+  overflow: hidden;
+}
+
+.about-polaroid__photo {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  width: 100%;
+  height: 100%;
   object-fit: cover;
   object-position: center center;
-  border-radius: 1px;
   filter: url('#about-polaroid-vintage') contrast(1.06) saturate(1.06);
 }
 
-/* Extra warm edge wash + speckled grain on top of the photo */
+/* Warm wash + grain — same box as the photo */
 .about-polaroid__fx {
   position: absolute;
+  inset: 0;
   z-index: 1;
-  left: calc(var(--window-left) / var(--frame-w) * 100%);
-  top: calc(var(--window-top) / var(--frame-h) * 100%);
-  width: calc(var(--window-w) / var(--frame-w) * 100%);
-  height: calc(var(--window-h) / var(--frame-h) * 100%);
-  border-radius: 1px;
+  width: 100%;
+  height: 100%;
   pointer-events: none;
   background:
     url("data:image/svg+xml,%3Csvg viewBox='0 0 180 180' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='1.1' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23g)' opacity='0.55'/%3E%3C/svg%3E"),
@@ -201,7 +209,7 @@
       transparent 40%,
       rgba(60, 30, 12, 0.14) 100%
     );
-  background-size: 120px 120px, auto, auto;
+  background-size: 100% 100%, 100% 100%, 100% 100%;
   mix-blend-mode: soft-light;
   opacity: 0.85;
   box-shadow: inset 0 0 16px rgba(35, 18, 6, 0.18);
