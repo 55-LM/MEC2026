@@ -13,16 +13,12 @@ const COMPACT_ABOUT_MQ = '(max-width: 1024px), (orientation: portrait)';
 
 /** Build a long single-row marquee for phones / portrait / narrow screens. */
 function buildCompactAlbum(): AboutScrollPhoto[] {
-  const base = [...aboutDay1Album, ...aboutDay2Album];
-  if (base.length === 0) return base;
-  /* Two full passes — dense enough without an endless scrub. */
-  const loops = 2;
-  return Array.from({ length: loops }, (_, loop) =>
-    base.map((photo) => ({
-      ...photo,
-      id: `${photo.id}__compact-${loop}`,
-    })),
-  ).flat();
+  /* Take every other frame from day1+day2 — same look, ~half the decode/composite cost. */
+  const base = [...aboutDay1Album, ...aboutDay2Album].filter((_, i) => i % 2 === 0);
+  return base.map((photo) => ({
+    ...photo,
+    id: `${photo.id}__compact`,
+  }));
 }
 
 /** Single-row collage on phones / portrait. */
@@ -130,10 +126,13 @@ function FramedPolaroid({
   photo,
   className = '',
   style,
+  lite = false,
 }: {
   photo: AboutScrollPhoto;
   className?: string;
   style?: CSSProperties;
+  /** Skip vintage FX overlays (compact / portrait performance). */
+  lite?: boolean;
 }) {
   const win = photo.window ?? FRAME_WINDOWS[photo.frame] ?? DEFAULT_WINDOW;
 
@@ -160,8 +159,11 @@ function FramedPolaroid({
             alt={photo.photoAlt}
             loading="lazy"
             decoding="async"
+            sizes="(max-width: 700px) 58vw, (max-width: 1024px) 52vw, 14vw"
+            width={640}
+            height={640}
           />
-          <span className="about-polaroid__fx" aria-hidden="true" />
+          {lite ? null : <span className="about-polaroid__fx" aria-hidden="true" />}
         </div>
         <img
           className="about-polaroid__frame"
@@ -169,6 +171,10 @@ function FramedPolaroid({
           alt=""
           aria-hidden="true"
           draggable={false}
+          loading="lazy"
+          decoding="async"
+          width={320}
+          height={423}
         />
       </figure>
     </div>
@@ -239,10 +245,9 @@ export function About() {
       const refreshCompactTravel = () => {
         const travel = getTravel(row1);
         /*
-          Long enough to feel paced, shorter than the full strip so it
-          doesn’t drag after the photos.
+          Shorter pin on mobile — long scrub + dozens of images is the main jank source.
         */
-        compactPin = Math.min(travel, window.innerHeight * 5.25);
+        compactPin = Math.min(travel, window.innerHeight * 2.75);
         return compactPin;
       };
       if (compact) refreshCompactTravel();
@@ -262,9 +267,9 @@ export function About() {
         const stickerFade = compact ? 0.07 : 0.1;
         const bodyFade = compact ? 0.05 : 0.07;
 
-        gsap.set(row1, { x: -travel1 * imgProgress });
+        gsap.set(row1, { x: -travel1 * imgProgress, force3D: true });
         if (row2 && !compact) {
-          gsap.set(row2, { x: -travel2 * (1 - imgProgress) });
+          gsap.set(row2, { x: -travel2 * (1 - imgProgress), force3D: true });
         }
 
         stickers.forEach((sticker, index) => {
@@ -318,7 +323,8 @@ export function About() {
 
       const grid = document.querySelector<HTMLElement>('.grid-background');
       const freezeGrid = (self: ScrollTrigger) => {
-        if (!grid) return;
+        /* Skip on compact — moving the full-page grid every scroll tick is very costly. */
+        if (!grid || compact) return;
         gsap.set(grid, { y: self.scroll() - self.start });
       };
       const releaseGrid = () => {
@@ -340,8 +346,9 @@ export function About() {
           return `+=${Math.max(travel, window.innerHeight) * 1.2}`;
         },
         pin: true,
-        scrub: 0.4,
-        anticipatePin: 1,
+        /* Compact: 1:1 scrub (smoothed scrub feels laggy/glitchy on mobile) */
+        scrub: compact ? true : 0.4,
+        anticipatePin: compact ? 0 : 1,
         invalidateOnRefresh: true,
         onUpdate: (self) => {
           applyProgress(self.progress);
@@ -396,43 +403,45 @@ export function About() {
       className={`about${reduced ? ' about--static' : ''}${compact ? ' about--compact' : ''}`}
       aria-label="About MEC"
     >
-      {/* Shared film-grain + warmth filter for polaroid photos */}
-      <svg className="about-polaroid-filter" aria-hidden="true" focusable="false">
-        <defs>
-          <filter
-            id="about-polaroid-vintage"
-            x="0%"
-            y="0%"
-            width="100%"
-            height="100%"
-            filterUnits="objectBoundingBox"
-            colorInterpolationFilters="sRGB"
-          >
-            <feTurbulence
-              type="fractalNoise"
-              baseFrequency="0.8"
-              numOctaves="3"
-              seed="7"
-              result="noise"
-            />
-            <feColorMatrix
-              in="noise"
-              type="matrix"
-              values="0 0 0 0 0.55
-                      0 0 0 0 0.5
-                      0 0 0 0 0.4
-                      0 0 0 0.4 0"
-              result="grain"
-            />
-            <feBlend in="SourceGraphic" in2="grain" mode="overlay" result="grained" />
-            <feComponentTransfer in="grained">
-              <feFuncR type="linear" slope="1.05" intercept="0.015" />
-              <feFuncG type="linear" slope="1.02" intercept="0.008" />
-              <feFuncB type="linear" slope="0.97" intercept="0" />
-            </feComponentTransfer>
-          </filter>
-        </defs>
-      </svg>
+      {/* Shared film-grain + warmth filter — desktop only (too costly on mobile GPUs) */}
+      {!compact ? (
+        <svg className="about-polaroid-filter" aria-hidden="true" focusable="false">
+          <defs>
+            <filter
+              id="about-polaroid-vintage"
+              x="0%"
+              y="0%"
+              width="100%"
+              height="100%"
+              filterUnits="objectBoundingBox"
+              colorInterpolationFilters="sRGB"
+            >
+              <feTurbulence
+                type="fractalNoise"
+                baseFrequency="0.8"
+                numOctaves="3"
+                seed="7"
+                result="noise"
+              />
+              <feColorMatrix
+                in="noise"
+                type="matrix"
+                values="0 0 0 0 0.55
+                        0 0 0 0 0.5
+                        0 0 0 0 0.4
+                        0 0 0 0.4 0"
+                result="grain"
+              />
+              <feBlend in="SourceGraphic" in2="grain" mode="overlay" result="grained" />
+              <feComponentTransfer in="grained">
+                <feFuncR type="linear" slope="1.05" intercept="0.015" />
+                <feFuncG type="linear" slope="1.02" intercept="0.008" />
+                <feFuncB type="linear" slope="0.97" intercept="0" />
+              </feComponentTransfer>
+            </filter>
+          </defs>
+        </svg>
+      ) : null}
 
       <div className="about-scroll">
         <div className="about-scroll__copy">
@@ -477,6 +486,7 @@ export function About() {
                 <FramedPolaroid
                   key={photo.id}
                   photo={photo}
+                  lite={compact}
                   style={
                     {
                       '--collage-offset': COLLAGE_OFFSETS[index % COLLAGE_OFFSETS.length],

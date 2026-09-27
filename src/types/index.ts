@@ -131,6 +131,26 @@ export interface Competition {
   imageScale: number;
   icon: string;
   accentColor: string;
+  /** e.g. "3 to 4" — empty until confirmed */
+  teamSize: string;
+  /** e.g. "6-8 Hours" — empty until confirmed */
+  workTime: string;
+  /** e.g. "Prototype & Presentation" — empty until confirmed */
+  deliverables: string;
+  /** Horizontal shift for on-card body copy (CSS length, e.g. "0.6rem"). */
+  bodyOffsetX?: string;
+  /** Vertical shift for on-card body copy (CSS length, e.g. "0.25rem"). */
+  bodyOffsetY?: string;
+  /** Scale factor for on-card body font size (1 = default). */
+  bodyFontScale?: number;
+  /** Scale factor for on-card body width (1 = default). */
+  bodyWidthScale?: number;
+  /** Vertical shift for meta stickers (CSS length; positive = down). */
+  metaOffsetY?: string;
+  /** Horizontal shift for meta stickers + values (CSS length; positive = right). */
+  metaOffsetX?: string;
+  /** Marker highlight + Abstract/Rubric underline colour (hex). */
+  metaHighlightColor?: string;
   documentOneLabel: string;
   documentOneUrl: string;
   documentTwoLabel: string;
@@ -143,6 +163,16 @@ export interface CompetitionDocStickers {
   abstractAlt: string;
   rubricSrc: string;
   rubricAlt: string;
+}
+
+/** Shared Team Size / Work Time / Deliverables label stickers. */
+export interface CompetitionMetaStickers {
+  teamSizeSrc: string;
+  teamSizeAlt: string;
+  workTimeSrc: string;
+  workTimeAlt: string;
+  deliverablesSrc: string;
+  deliverablesAlt: string;
 }
 
 export type SponsorTierId = 'tier1' | 'tier2' | 'tier3';

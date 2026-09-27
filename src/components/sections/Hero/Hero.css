@@ -430,32 +430,87 @@
   }
 }
 
-/* Phones + portrait / narrow — date stays on-page; stickers nest by gear */
+/* Phones + portrait / narrow — gear to top; title centered; date on-page */
 @media (max-width: 1024px), (orientation: portrait) {
   .hero {
+    --hero-compact-gear-w: 145vw;
+    --hero-compact-gear-crop: 0.42;
+    /* clip (not hidden) — hides gear bleed without creating a scroll section */
     overflow-x: clip;
+    overflow-y: visible;
+    max-width: 100%;
+    align-items: center;
+    justify-content: flex-start;
+    /* Sit title/meta just under the hanging gear (asset has padding, so < full box) */
+    padding-top: calc(
+      var(--hero-compact-gear-w) * (1 - var(--hero-compact-gear-crop)) * 0.76 + 0.25rem
+    );
+  }
+
+  /* Gear sits at the top of the hero (compact / portrait only) */
+  .hero__gear-stage {
+    width: 100%;
+    max-width: 100%;
+    height: 100%;
+    left: 0;
+    overflow-x: clip;
+    overflow-y: visible;
+  }
+
+  .hero__gear {
+    left: 50%;
+    top: 0;
+    /* Oversized; a bit more than half visible under the header */
+    width: var(--hero-compact-gear-w);
+    height: auto;
+    max-width: none;
+    transform: translate(-50%, calc(var(--hero-compact-gear-crop) * -100%));
   }
 
   .hero__inner {
-    /* Shift was pushing title + date past the viewport on narrow screens */
+    /* Center MET / ENG / COMP in the viewport */
     --hero-title-shift-x: 0;
-    overflow-x: clip;
     max-width: 100%;
+    width: 100%;
+    margin-inline: 0;
+    padding-left: clamp(0.75rem, 4vw, 1.5rem);
+    padding-right: clamp(0.75rem, 4vw, 1.5rem);
+    transform: none;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
   }
 
   .hero__title-block {
     overflow: visible;
-    max-width: 100%;
+    max-width: min(100%, 36rem);
+    width: 100%;
+    margin-inline: auto;
+    /* Room for date/location above MET without touching */
+    padding-top: clamp(0.95rem, 2.6vw, 1.15rem);
+  }
+
+  .hero__title-cluster {
+    transform: scale(var(--hero-title-scale-x), var(--hero-title-scale-y));
+    transform-origin: center top;
+    width: 100%;
+    margin-top: 0.15rem;
+  }
+
+  .hero__title {
+    height: clamp(16rem, 48vh, 28rem);
   }
 
   .hero__meta {
-    top: -0.45rem;
-    right: max(0.25rem, env(safe-area-inset-right, 0px));
-    left: 0.25rem;
-    width: auto;
-    max-width: calc(
-      100vw - 0.75rem - env(safe-area-inset-left, 0px) - env(safe-area-inset-right, 0px)
-    );
+    top: 0;
+    left: 0;
+    right: 0;
+    /* Match the scaled MET / ENG / COMP visual width */
+    width: calc(var(--hero-title-scale-x) * 100%);
+    max-width: calc(var(--hero-title-scale-x) * 100%);
+    margin-inline: auto;
+    padding: 0;
+    text-align: center;
     overflow: hidden;
   }
 
@@ -471,78 +526,69 @@
     word-break: break-word;
     overflow: hidden;
     line-height: 1.2;
+    text-align: center;
   }
 
   .hero__stickers {
     flex-direction: row;
     flex-wrap: wrap;
-    align-items: flex-end;
-    align-content: flex-end;
-    justify-content: flex-start;
+    align-items: center;
+    align-content: center;
+    justify-content: center;
     width: min(100%, 23rem);
-    max-width: calc(100% + 1.5rem);
+    max-width: 100%;
     box-sizing: border-box;
     --hero-sticker-row-gap: 0.45rem;
     --hero-sticker-col-gap: 0.55rem;
     gap: var(--hero-sticker-row-gap) var(--hero-sticker-col-gap);
     --hero-sticker-scale: 0.92;
-    /* Sit under the title, shifted right clear of the gear */
-    margin-top: clamp(0.25rem, 2vh, 1rem);
-    margin-left: clamp(3.5rem, 16vw, 7.5rem);
-    margin-right: 0;
+    margin-top: -1.35rem;
+    margin-left: auto;
+    margin-right: auto;
     padding-left: 0;
     transform: scale(var(--hero-sticker-scale));
-    transform-origin: left bottom;
+    transform-origin: center top;
   }
 
   .hero__sticker {
     width: auto;
-    /* Soften rotation so stacked rows stay readable */
+    /* Soften rotation; keep in flow for centered wrap */
     transform: rotate(calc(var(--sticker-angle, 0deg) * 0.4));
     padding-bottom: 0.25rem;
   }
 
-  .hero__sticker--shop {
-    transform: translate(2.5rem, -5.4rem)
-      rotate(calc(var(--sticker-angle, 0deg) * 0.4));
-  }
-
-  .hero__sticker--rulebook {
-    transform: translate(1.6rem, -4.4rem)
-      rotate(calc(var(--sticker-angle, 0deg) * 0.4));
-  }
-
-  .hero__sticker--schedule {
-    transform: translate(1rem, -3.4rem)
-      rotate(calc(var(--sticker-angle, 0deg) * 0.4));
-  }
-
-  .hero__sticker--judge {
-    transform: translate(-1.35rem, -2.15rem)
-      rotate(calc(var(--sticker-angle, 0deg) * 0.4));
-  }
-
-  .hero__sticker--participant {
-    transform: translate(-18.5rem, -2.75rem)
-      rotate(calc(var(--sticker-angle, 0deg) * 0.4));
-  }
-
-  .hero__sticker--rooms {
-    transform: translate(-6rem, -2.25rem)
-      rotate(calc(var(--sticker-angle, 0deg) * 0.4));
-  }
-
+  .hero__sticker--shop,
+  .hero__sticker--rulebook,
+  .hero__sticker--schedule,
+  .hero__sticker--judge,
+  .hero__sticker--participant,
+  .hero__sticker--rooms,
   .hero__sticker--board {
-    transform: translate(-18.5rem, -1.35rem)
-      rotate(calc(var(--sticker-angle, 0deg) * 0.4));
+    transform: rotate(calc(var(--sticker-angle, 0deg) * 0.4));
+  }
+
+  .hero__sticker-peel {
+    --sticker-stroke-scale: 0.55;
+  }
+
+  .hero__sticker-peel .sticker-stroke {
+    height: 1.2rem;
+    bottom: -0.65rem;
+  }
+
+  .hero__sticker-peel .sticker-image {
+    filter: none;
+    width: clamp(9rem, 46vw, 13rem);
+  }
+
+  .hero__title-word,
+  .hero__split-word,
+  .hero__title-scaler {
+    will-change: auto;
   }
 
   .hero__sticker-peel {
     --sticker-width: clamp(9rem, 46vw, 13rem);
-  }
-
-  .hero__sticker-peel .sticker-image {
-    width: clamp(9rem, 46vw, 13rem);
   }
 
   .hero__sticker--medium .hero__sticker-peel {
@@ -571,20 +617,30 @@
 }
 
 @media (max-width: 700px) {
-  /* Scale only — keep locked left / top / translate */
+  /* Keep top-centered crop; slightly larger on phones */
+  .hero {
+    --hero-compact-gear-w: 155vw;
+  }
+
   .hero__gear {
-    height: 105%;
+    width: var(--hero-compact-gear-w);
+    height: auto;
+    transform: translate(-50%, calc(var(--hero-compact-gear-crop) * -100%));
   }
 
   .hero__inner {
-    padding-left: clamp(4.5rem, 32svh, 12rem);
-    padding-right: clamp(0.5rem, 2vw, 1rem);
+    padding-left: clamp(0.5rem, 3vw, 1rem);
+    padding-right: clamp(0.5rem, 3vw, 1rem);
   }
 
   .hero__meta {
-    top: -0.3rem;
-    right: max(0px, calc((1 - var(--hero-title-scale-x)) * 100%));
-    left: 0.15rem;
+    top: 0;
+    left: 0;
+    right: 0;
+    width: calc(var(--hero-title-scale-x) * 100%);
+    max-width: calc(var(--hero-title-scale-x) * 100%);
+    margin-inline: auto;
+    text-align: center;
   }
 
   .hero__meta-text {
@@ -593,11 +649,12 @@
   }
 
   .hero__stickers {
-    margin-left: clamp(4rem, 20vw, 8.5rem);
+    margin-left: auto;
+    margin-right: auto;
   }
 
   .hero__title {
-    height: clamp(20rem, 55vh, 32rem);
+    height: clamp(14rem, 42vh, 24rem);
     padding: 0;
     gap: 0;
   }

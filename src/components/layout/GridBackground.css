@@ -5,7 +5,13 @@
   pointer-events: none;
   background-color: var(--color-background);
   overflow: hidden;
-  will-change: transform;
+  will-change: auto;
+}
+
+@media (min-width: 1025px) and (orientation: landscape) {
+  .grid-background {
+    will-change: transform;
+  }
 }
 
 .grid-background__pattern {

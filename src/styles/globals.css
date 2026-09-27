@@ -39,6 +39,15 @@ body {
   isolation: isolate;
 }
 
+/* Compact / portrait — clip sideways overflow without nested scrollports */
+@media (max-width: 1024px), (orientation: portrait) {
+  html,
+  body {
+    overflow-x: clip;
+    overscroll-behavior-x: none;
+  }
+}
+
 img,
 svg,
 video {

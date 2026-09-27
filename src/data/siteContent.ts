@@ -235,7 +235,7 @@ export const siteContent: SiteContent = {
   ],
 
   competitionsIntro:
-    'Nine streams. Explore each competition below — rules and packages will be linked once official documents are available.',
+    'Please review the competition rulebook and the abstract and scoring rubrics for your competition so you understand all requirements and how you’ll be evaluated.',
 
   sponsorsIntro:
     'MEC is made possible by the support of our partners. Official sponsor names and logos will appear here as confirmations arrive.',

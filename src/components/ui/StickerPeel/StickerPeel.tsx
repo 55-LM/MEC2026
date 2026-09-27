@@ -117,7 +117,7 @@ export default function StickerPeel({
               fill="none"
               pathLength={1}
               style={{
-                strokeWidth: path.strokeWidth ?? 2.2,
+                strokeWidth: `calc((${path.strokeWidth ?? 2.2}) * var(--sticker-stroke-scale, 1))`,
                 opacity: path.opacity ?? 1,
               }}
             />
