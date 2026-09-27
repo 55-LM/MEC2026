@@ -86,7 +86,7 @@ Edit CSS variables in `src/styles/tokens.css`:
 
 ## Replacing the MEC logo
 
-1. Add your logo / hero image under `public/images/hero/` (e.g. `mec-logo.svg` or `.png`).
+1. Add your logo / hero image under `public/images/hero/` (e.g. `mec-logo.svg` or `.webp`).
 2. Update `logoSrc` / `logoAlt` in `src/data/siteContent.ts` (and `hero.logoSrc` if different), e.g. `'/images/hero/mec-logo.svg'`.
 
 ## Updating content by section
@@ -95,7 +95,7 @@ Edit CSS variables in `src/styles/tokens.css`:
 
 Edit `siteContent.hero` in `src/data/siteContent.ts` (title, copy, date, location, CTAs, `registrationUrl`).
 
-Place Hero images in `public/images/hero/` and reference them as `/images/hero/your-file.png`.
+Place Hero images in `public/images/hero/` and reference them as `/images/hero/your-file.webp`.
 
 Leave `registrationUrl` empty until official — the Register button stays disabled and does not invent a destination.
 

@@ -1,6 +1,7 @@
-import { useLayoutEffect, useRef, type CSSProperties } from 'react';
+import { useEffect, useLayoutEffect, useMemo, useRef, useState, type CSSProperties } from 'react';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import { aboutDay1Album, aboutDay2Album } from '../../../data/aboutMarquee';
 import { siteContent } from '../../../data/siteContent';
 import { usePrefersReducedMotion } from '../../../hooks/usePrefersReducedMotion';
 import type { AboutPolaroidWindow, AboutScrollPhoto } from '../../../types';
@@ -8,13 +9,48 @@ import './About.css';
 
 gsap.registerPlugin(ScrollTrigger);
 
+const COMPACT_ABOUT_MQ = '(max-width: 1024px), (orientation: portrait)';
+
+/** Build a long single-row marquee for phones / portrait / narrow screens. */
+function buildCompactAlbum(): AboutScrollPhoto[] {
+  const base = [...aboutDay1Album, ...aboutDay2Album];
+  if (base.length === 0) return base;
+  /* Two full passes — dense enough without an endless scrub. */
+  const loops = 2;
+  return Array.from({ length: loops }, (_, loop) =>
+    base.map((photo) => ({
+      ...photo,
+      id: `${photo.id}__compact-${loop}`,
+    })),
+  ).flat();
+}
+
+/** Single-row collage on phones / portrait. */
+function useCompactAboutLayout() {
+  const [compact, setCompact] = useState(() =>
+    typeof window !== 'undefined'
+      ? window.matchMedia(COMPACT_ABOUT_MQ).matches
+      : false,
+  );
+
+  useEffect(() => {
+    const media = window.matchMedia(COMPACT_ABOUT_MQ);
+    const update = () => setCompact(media.matches);
+    update();
+    media.addEventListener('change', update);
+    return () => media.removeEventListener('change', update);
+  }, []);
+
+  return compact;
+}
+
 /**
  * Exact photo cutouts per frame asset (native px).
  * Tops sit just below the white top bezel so photos don’t show through the tape.
  * Bottom margin is 269px on every frame.
  */
 const FRAME_WINDOWS: Record<string, AboutPolaroidWindow> = {
-  '/images/about/polaroid-frame-1.png': {
+  '/images/about/polaroid-frame-1.webp': {
     frameW: 1066,
     frameH: 1409,
     left: 50,
@@ -22,7 +58,7 @@ const FRAME_WINDOWS: Record<string, AboutPolaroidWindow> = {
     width: 965,
     height: 984,
   },
-  '/images/about/polaroid-frame-2.png': {
+  '/images/about/polaroid-frame-2.webp': {
     frameW: 1066,
     frameH: 1371,
     left: 50,
@@ -30,7 +66,7 @@ const FRAME_WINDOWS: Record<string, AboutPolaroidWindow> = {
     width: 965,
     height: 986,
   },
-  '/images/about/polaroid-frame-3.png': {
+  '/images/about/polaroid-frame-3.webp': {
     frameW: 1066,
     frameH: 1411,
     left: 50,
@@ -38,7 +74,7 @@ const FRAME_WINDOWS: Record<string, AboutPolaroidWindow> = {
     width: 965,
     height: 986,
   },
-  '/images/about/polaroid-frame-4.png': {
+  '/images/about/polaroid-frame-4.webp': {
     frameW: 1066,
     frameH: 1392,
     left: 50,
@@ -46,7 +82,7 @@ const FRAME_WINDOWS: Record<string, AboutPolaroidWindow> = {
     width: 965,
     height: 972,
   },
-  '/images/about/polaroid-frame-6.png': {
+  '/images/about/polaroid-frame-6.webp': {
     frameW: 1066,
     frameH: 1387,
     left: 50,
@@ -54,7 +90,7 @@ const FRAME_WINDOWS: Record<string, AboutPolaroidWindow> = {
     width: 965,
     height: 987,
   },
-  '/images/about/polaroid-frame-7.png': {
+  '/images/about/polaroid-frame-7.webp': {
     frameW: 1066,
     frameH: 1395,
     left: 50,
@@ -62,7 +98,7 @@ const FRAME_WINDOWS: Record<string, AboutPolaroidWindow> = {
     width: 965,
     height: 985,
   },
-  '/images/about/polaroid-frame-8.png': {
+  '/images/about/polaroid-frame-8.webp': {
     frameW: 1066,
     frameH: 1390,
     left: 50,
@@ -72,22 +108,22 @@ const FRAME_WINDOWS: Record<string, AboutPolaroidWindow> = {
   },
 };
 
-const DEFAULT_WINDOW: AboutPolaroidWindow = FRAME_WINDOWS['/images/about/polaroid-frame-1.png'];
+const DEFAULT_WINDOW: AboutPolaroidWindow = FRAME_WINDOWS['/images/about/polaroid-frame-1.webp'];
 
 /** Vertical rhythm for the collage (biased upward). */
 const COLLAGE_OFFSETS = [
-  '0.15rem',
-  '-1.55rem',
-  '0.55rem',
-  '-1.15rem',
-  '0.85rem',
-  '-1.9rem',
-  '0.1rem',
-  '-1.35rem',
-  '0.65rem',
-  '-0.95rem',
-  '0.95rem',
-  '-1.45rem',
+  '0.08rem',
+  '-0.55rem',
+  '0.25rem',
+  '-0.4rem',
+  '0.35rem',
+  '-0.65rem',
+  '0.05rem',
+  '-0.45rem',
+  '0.3rem',
+  '-0.35rem',
+  '0.4rem',
+  '-0.5rem',
 ];
 
 function FramedPolaroid({
@@ -140,22 +176,39 @@ function FramedPolaroid({
 }
 
 /** Resting size of each stacked title sticker (each one larger than the last). */
-const STICKER_SIZES = ['72%', '94%', '100%', '128%'] as const;
-const STICKER_MAX_HEIGHTS = ['11rem', '13.5rem', '14rem', '17.5rem'] as const;
+const STICKER_SIZES = ['68%', '82%', '94%', '125%'] as const;
+const STICKER_MAX_HEIGHTS = ['7.75rem', '9.25rem', '10.25rem', '14rem'] as const;
 
 /** Slight sticker tilts for the stacked title pile */
-const STICKER_TILTS = [-7, 5, -4, 8] as const;
+const STICKER_TILTS = [-7, 5, -4, 3] as const;
 
 export function About() {
-  const { aboutAlbumPhotos, aboutChapters } = siteContent;
+  const { aboutChapters } = siteContent;
   const reduced = usePrefersReducedMotion();
+  const compact = useCompactAboutLayout();
   const sectionRef = useRef<HTMLElement>(null);
-  const trackRef = useRef<HTMLDivElement>(null);
+  const row1Ref = useRef<HTMLDivElement>(null);
+  const row2Ref = useRef<HTMLDivElement>(null);
+
+  const row1Album = useMemo(
+    () => (compact ? buildCompactAlbum() : aboutDay1Album),
+    [compact],
+  );
 
   useLayoutEffect(() => {
     const section = sectionRef.current;
-    const track = trackRef.current;
-    if (!section || !track || reduced || aboutAlbumPhotos.length === 0) return;
+    const row1 = row1Ref.current;
+    const row2 = row2Ref.current;
+    if (
+      !section ||
+      !row1 ||
+      reduced ||
+      aboutDay1Album.length === 0 ||
+      (!compact && aboutDay2Album.length === 0) ||
+      (!compact && !row2)
+    ) {
+      return;
+    }
 
     const ctx = gsap.context(() => {
       const stickers = gsap.utils.toArray<HTMLElement>(
@@ -166,10 +219,53 @@ export function About() {
       );
       const count = Math.max(stickers.length, 1);
 
-      const getTravel = () => Math.max(track.scrollWidth - window.innerWidth, 0);
+      const getTravel = (el: HTMLElement | null) => {
+        if (!el || getComputedStyle(el).display === 'none') return 0;
+        const clip = el.parentElement?.clientWidth ?? window.innerWidth;
+        const collage = el.querySelector(
+          '.about-scroll__collage',
+        ) as HTMLElement | null;
+        const padLeft = parseFloat(getComputedStyle(el).paddingLeft) || 0;
+        const contentW = collage?.scrollWidth ?? el.scrollWidth;
+        /*
+          Stop when the last photo hits the right edge — do NOT include
+          padding-right or the scrub keeps going after images are gone.
+        */
+        return Math.max(padLeft + contentW - clip, 0);
+      };
+
+      /* Shared travel so pin end and x-transform stay locked together. */
+      let compactPin = 0;
+      const refreshCompactTravel = () => {
+        const travel = getTravel(row1);
+        /*
+          Long enough to feel paced, shorter than the full strip so it
+          doesn’t drag after the photos.
+        */
+        compactPin = Math.min(travel, window.innerHeight * 5.25);
+        return compactPin;
+      };
+      if (compact) refreshCompactTravel();
 
       const applyProgress = (progress: number) => {
-        gsap.set(track, { x: -getTravel() * progress });
+        const travel1 = compact
+          ? compactPin || refreshCompactTravel()
+          : getTravel(row1);
+        const travel2 = compact ? 0 : getTravel(row2);
+
+        /*
+          Compact: move only `compactPin` of the strip so images and scrub
+          finish together when the shorter pin ends.
+        */
+        const imgProgress = compact ? progress : Math.pow(progress, 1.15);
+        const textSpan = compact ? 0.52 : 0.68;
+        const stickerFade = compact ? 0.07 : 0.1;
+        const bodyFade = compact ? 0.05 : 0.07;
+
+        gsap.set(row1, { x: -travel1 * imgProgress });
+        if (row2 && !compact) {
+          gsap.set(row2, { x: -travel2 * (1 - imgProgress) });
+        }
 
         stickers.forEach((sticker, index) => {
           if (index === 0) {
@@ -178,9 +274,8 @@ export function About() {
             return;
           }
 
-          // Slap on across the scroll — earlier stickers land sooner
-          const appearAt = (index / count) * 0.82;
-          const t = gsap.utils.clamp(0, 1, (progress - appearAt) / 0.1);
+          const appearAt = (index / count) * textSpan;
+          const t = gsap.utils.clamp(0, 1, (progress - appearAt) / stickerFade);
           const e = 1 - (1 - t) ** 3;
 
           gsap.set(sticker, {
@@ -193,22 +288,21 @@ export function About() {
         });
 
         bodies.forEach((body, index) => {
-          const start = (index / count) * 0.82;
+          const start = (index / count) * textSpan;
           const end =
-            index === count - 1 ? 1.01 : ((index + 1) / count) * 0.82;
-          const fade = 0.07;
+            index === count - 1 ? 1.01 : ((index + 1) / count) * textSpan;
           let opacity = 0;
           let y = 14;
 
-          if (progress >= start && progress < start + fade) {
-            const t = (progress - start) / fade;
+          if (progress >= start && progress < start + bodyFade) {
+            const t = (progress - start) / bodyFade;
             opacity = t;
             y = 14 * (1 - t);
-          } else if (progress >= start + fade && progress < end - fade) {
+          } else if (progress >= start + bodyFade && progress < end - bodyFade) {
             opacity = 1;
             y = 0;
-          } else if (progress >= end - fade && progress < end) {
-            const t = (progress - (end - fade)) / fade;
+          } else if (progress >= end - bodyFade && progress < end) {
+            const t = (progress - (end - bodyFade)) / bodyFade;
             opacity = 1 - t;
             y = -10 * t;
           } else if (index === count - 1 && progress >= start) {
@@ -220,13 +314,11 @@ export function About() {
         });
       };
 
-      // Initial state
       applyProgress(0);
 
       const grid = document.querySelector<HTMLElement>('.grid-background');
       const freezeGrid = (self: ScrollTrigger) => {
         if (!grid) return;
-        /* Cancel document scroll so the grid looks locked during the About pin */
         gsap.set(grid, { y: self.scroll() - self.start });
       };
       const releaseGrid = () => {
@@ -237,7 +329,16 @@ export function About() {
       ScrollTrigger.create({
         trigger: section,
         start: 'top top',
-        end: () => `+=${Math.max(getTravel(), window.innerHeight) * 1.2}`,
+        end: () => {
+          const travel = Math.max(
+            getTravel(row1),
+            compact ? 0 : getTravel(row2),
+          );
+          if (compact) {
+            return `+=${Math.max(refreshCompactTravel(), 1)}`;
+          }
+          return `+=${Math.max(travel, window.innerHeight) * 1.2}`;
+        },
         pin: true,
         scrub: 0.4,
         anticipatePin: 1,
@@ -247,6 +348,7 @@ export function About() {
           freezeGrid(self);
         },
         onRefresh: (self) => {
+          if (compact) refreshCompactTravel();
           applyProgress(self.progress);
           if (self.isActive) freezeGrid(self);
           else releaseGrid();
@@ -259,23 +361,39 @@ export function About() {
     const refresh = () => ScrollTrigger.refresh();
     const raf = window.requestAnimationFrame(refresh);
     const timer = window.setTimeout(refresh, 500);
+    const timer2 = window.setTimeout(refresh, 1500);
     window.addEventListener('load', refresh);
+
+    /* Recalc travel once polaroids finish decoding (scrollWidth grows). */
+    const imgs = row1.querySelectorAll('img');
+    const onImg = () => refresh();
+    imgs.forEach((img) => {
+      if (!img.complete) {
+        img.addEventListener('load', onImg);
+        img.addEventListener('error', onImg);
+      }
+    });
 
     return () => {
       window.cancelAnimationFrame(raf);
       window.clearTimeout(timer);
+      window.clearTimeout(timer2);
       window.removeEventListener('load', refresh);
+      imgs.forEach((img) => {
+        img.removeEventListener('load', onImg);
+        img.removeEventListener('error', onImg);
+      });
       const grid = document.querySelector<HTMLElement>('.grid-background');
       if (grid) gsap.set(grid, { y: 0 });
       ctx.revert();
     };
-  }, [reduced, aboutAlbumPhotos.length, aboutChapters.length]);
+  }, [reduced, aboutChapters.length, compact, row1Album]);
 
   return (
     <section
       id="about"
       ref={sectionRef}
-      className={`about${reduced ? ' about--static' : ''}`}
+      className={`about${reduced ? ' about--static' : ''}${compact ? ' about--compact' : ''}`}
       aria-label="About MEC"
     >
       {/* Shared film-grain + warmth filter for polaroid photos */}
@@ -352,20 +470,40 @@ export function About() {
           </div>
         </div>
 
-        <div ref={trackRef} className="about-scroll__track">
-          <div className="about-scroll__collage">
-            {aboutAlbumPhotos.map((photo, index) => (
-              <FramedPolaroid
-                key={photo.id}
-                photo={photo}
-                style={
-                  {
-                    '--collage-offset': COLLAGE_OFFSETS[index % COLLAGE_OFFSETS.length],
-                  } as CSSProperties
-                }
-              />
-            ))}
+        <div className="about-scroll__rows" aria-label="Photos from previous MEC events">
+          <div ref={row1Ref} className="about-scroll__track about-scroll__track--row1">
+            <div className="about-scroll__collage">
+              {row1Album.map((photo, index) => (
+                <FramedPolaroid
+                  key={photo.id}
+                  photo={photo}
+                  style={
+                    {
+                      '--collage-offset': COLLAGE_OFFSETS[index % COLLAGE_OFFSETS.length],
+                    } as CSSProperties
+                  }
+                />
+              ))}
+            </div>
           </div>
+
+          {!compact ? (
+            <div ref={row2Ref} className="about-scroll__track about-scroll__track--row2">
+              <div className="about-scroll__collage">
+                {aboutDay2Album.map((photo, index) => (
+                  <FramedPolaroid
+                    key={photo.id}
+                    photo={photo}
+                    style={
+                      {
+                        '--collage-offset': COLLAGE_OFFSETS[(index + 3) % COLLAGE_OFFSETS.length],
+                      } as CSSProperties
+                    }
+                  />
+                ))}
+              </div>
+            </div>
+          ) : null}
         </div>
       </div>
     </section>

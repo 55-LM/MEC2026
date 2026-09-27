@@ -1,105 +1,150 @@
+.competitions.section-container .section-container__inner {
+  /* Let card art read larger than the default content column */
+  width: min(100% - (var(--container-padding) * 2), 90rem);
+}
+
 .competitions__grid {
   display: grid;
-  gap: 1.25rem;
+  /* Card cell spacing only — does not change locked card art scales */
+  gap: clamp(1.75rem, 3.5vw, 2.75rem);
   grid-template-columns: 1fr;
+  max-width: 30rem;
+  margin-inline: auto;
+  align-items: start;
 }
 
 .competition-card {
+  --competition-card-scale: 1;
+  --competition-card-tilt: -2.25deg;
   display: flex;
   flex-direction: column;
-  background: var(--color-surface);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-lg);
-  overflow: hidden;
-  transition:
-    transform var(--duration-normal) var(--ease-out),
-    border-color var(--duration-normal) var(--ease-out),
-    box-shadow var(--duration-normal) var(--ease-out);
+  gap: 0;
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  background: transparent;
+  border: none;
 }
 
-.competition-card:hover,
-.competition-card:focus-within {
-  border-color: color-mix(in srgb, var(--card-accent) 55%, var(--color-border));
-  box-shadow: var(--shadow-md);
+.competition-card:nth-child(even) {
+  --competition-card-tilt: 2.25deg;
 }
 
-@media (hover: hover) and (pointer: fine) {
-  .competition-card:hover {
-    transform: translateY(-4px);
-  }
+.competition-card:nth-child(3n) {
+  --competition-card-tilt: -1.5deg;
 }
 
-.competition-card__media {
+/* LOCKED card art frame — tilt art only; stickers stay upright */
+.competition-card__art {
   position: relative;
-  aspect-ratio: 16 / 10;
-  background: #121212;
+  width: 100%;
+  aspect-ratio: 6 / 7;
+  overflow: hidden;
+  transform: rotate(var(--competition-card-tilt)) scale(1.11);
+  transform-origin: center center;
+  transition: transform var(--duration-normal) var(--ease-out);
 }
 
-.competition-card__media img {
+.competition-card__art-img {
+  display: block;
   width: 100%;
   height: 100%;
   object-fit: cover;
+  object-position: center;
+  transform: scale(var(--competition-card-scale));
+  transform-origin: center;
 }
 
-.competition-card__icon {
-  position: absolute;
-  top: 0.75rem;
-  left: 0.75rem;
-  display: inline-flex;
+.competition-card__stickers {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
   align-items: center;
   justify-content: center;
-  width: 2rem;
-  height: 2rem;
-  border-radius: var(--radius-sm);
-  background: rgba(8, 8, 8, 0.75);
-  color: var(--card-accent);
-  border: 1px solid color-mix(in srgb, var(--card-accent) 40%, transparent);
-}
-
-.competition-card__body {
-  display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
-  padding: 1.15rem;
-  flex: 1;
-}
-
-.competition-card__body h3 {
-  margin: 0;
-  font-family: var(--font-display);
-  font-size: var(--text-h3);
-  line-height: 1.25;
-}
-
-.competition-card__body p {
-  margin: 0;
-  flex: 1;
-}
-
-.competition-card__docs {
-  display: grid;
-  gap: 0.5rem;
-  margin-top: 0.5rem;
-}
-
-.competition-card__docs .btn {
+  gap: 0.35rem;
   width: 100%;
+  margin: 0;
+  /* Nudge stickers only — leave card art sizing alone */
+  padding: 0 0 0 0.85rem;
+  box-sizing: border-box;
 }
 
-@media (min-width: 600px) {
+.competition-card__sticker {
+  display: block;
+  flex: 0 1 auto;
+  margin: 0;
+  padding: 0;
+  line-height: 0;
+  color: inherit;
+  text-decoration: none;
+  overflow: visible;
+}
+
+.competition-card__sticker-peel.sticker-peel {
+  display: block;
+  line-height: 0;
+  overflow: visible;
+}
+
+/* Keep competition sticker sizing (not hero --sticker-width) */
+.competition-card__sticker .sticker-image {
+  width: auto;
+  height: clamp(1.85rem, 5vw, 2.85rem);
+  max-width: 100%;
+  object-fit: contain;
+  filter: none;
+}
+
+.competition-card__sticker--rubric .sticker-image {
+  height: clamp(1.65rem, 4.45vw, 2.55rem);
+}
+
+.competition-card__sticker .sticker-peel:hover .sticker-image,
+.competition-card__sticker:focus-within .sticker-image {
+  filter: none;
+}
+
+/* White hand-drawn underline (StickerPeel), sized for these stickers */
+.competition-card__sticker .sticker-stroke {
+  bottom: -0.55rem;
+  height: 1.15rem;
+}
+
+/* Trigger underline from the link/wrapper (focus lands on <a>, not .sticker-peel) */
+.competition-card__sticker:hover .sticker-stroke,
+.competition-card__sticker:focus-within .sticker-stroke {
+  opacity: 1;
+}
+
+.competition-card__sticker:hover .sticker-stroke__draw,
+.competition-card__sticker:focus-within .sticker-stroke__draw {
+  stroke-dashoffset: 0;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .competition-card:hover .competition-card__art {
+    transform: rotate(var(--competition-card-tilt)) translateY(-4px) scale(1.11);
+  }
+}
+
+@media (min-width: 700px) {
   .competitions__grid {
+    max-width: none;
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 
-@media (min-width: 1024px) {
+@media (min-width: 1280px) {
   .competitions__grid {
     grid-template-columns: repeat(3, minmax(0, 1fr));
+    max-width: 90rem;
+    margin-inline: auto;
   }
 }
 
 @media (max-height: 500px) and (orientation: landscape) and (max-width: 900px) {
   .competitions__grid {
     grid-template-columns: 1fr;
+    max-width: 22rem;
   }
 }

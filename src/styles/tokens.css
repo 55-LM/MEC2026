@@ -2,9 +2,9 @@
   /* Background & grid — continuous static surface */
   --color-background: #080808;
   --color-grid: 255, 255, 255;
-  --grid-opacity: 0.045;
-  --grid-size: 48px;
-  --grid-line-thickness: 2.5px;
+  --grid-opacity: 0.08;
+  --grid-size: 32px;
+  --grid-line-thickness: 1.25px;
   --noise-opacity: 0.1;
   --noise-size: 180px;
 
@@ -72,7 +72,7 @@
 
 @media (max-width: 768px) {
   :root {
-    --grid-size: 36px;
+    --grid-size: 24px;
     --header-height: 3.75rem;
   }
 }

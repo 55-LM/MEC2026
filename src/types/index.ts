@@ -124,12 +124,25 @@ export interface Competition {
   shortDescription: string;
   image: string;
   imageAlt: string;
+  /**
+   * Locked relative crop scale for card art (1 = fill the shared frame).
+   * Scales with the grid cell so cards stay proportional across breakpoints.
+   */
+  imageScale: number;
   icon: string;
   accentColor: string;
   documentOneLabel: string;
   documentOneUrl: string;
   documentTwoLabel: string;
   documentTwoUrl: string;
+}
+
+/** Shared Abstract / Rubric stickers shown under every competition card. */
+export interface CompetitionDocStickers {
+  abstractSrc: string;
+  abstractAlt: string;
+  rubricSrc: string;
+  rubricAlt: string;
 }
 
 export type SponsorTierId = 'tier1' | 'tier2' | 'tier3';

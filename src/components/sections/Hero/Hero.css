@@ -1,23 +1,48 @@
 .hero {
   position: relative;
   z-index: 1;
-  min-height: min(100svh, 56rem);
+  width: 100%;
+  /*
+    Pull under the sticky header so the gear can sit high in the viewport.
+    Header stays above the gear (z-index 50); header is transparent at rest
+    so the gear top isn’t hard-clipped.
+  */
+  margin-top: calc(-1 * (var(--header-height) + var(--safe-top)));
+  min-height: 100svh;
   display: flex;
   align-items: center;
-  overflow: hidden;
-  /* Clear the sticky header so nothing sits underneath it */
+  overflow: visible;
+  /* Clear the sticky header so title/stickers don’t sit underneath it */
   padding-top: calc(var(--header-height) + var(--safe-top) + clamp(1.25rem, 3vh, 2.5rem));
   padding-bottom: clamp(3rem, 10vh, 6rem);
+  box-sizing: border-box;
   background: transparent;
 }
 
-/* Larger gear — more of it visible, overlaps the title */
+/*
+  Viewport-locked stage so gear size/position stay tied to the screen,
+  not to hero content height (which grows/shrinks with stickers).
+*/
+.hero__gear-stage {
+  position: absolute;
+  left: 0;
+  top: 0;
+  z-index: 2;
+  width: 0;
+  height: 100svh;
+  pointer-events: none;
+  overflow: visible;
+}
+
+/*
+  LOCKED GEAR PLACEMENT — do not change left / top / translate.
+  Only adjust `height` to scale the gear for smaller viewports.
+*/
 .hero__gear {
   position: absolute;
   left: 0;
-  top: 43%;
-  z-index: 2;
-  height: 125%;
+  top: 50%;
+  height: 130%;
   width: auto;
   aspect-ratio: 1;
   max-width: none;
@@ -40,20 +65,43 @@
   width: 100%;
   max-width: none;
   margin-inline: 0;
-  padding-left: clamp(8rem, 34vw, 24rem);
-  padding-right: clamp(1rem, 3vw, 2.5rem);
+  /*
+    Keep title + stickers clear of the gear on wide screens.
+    svh tracks the gear’s visible footprint; the max stops left-creep
+    from burying copy under the gear on ultra-wide monitors.
+  */
+  padding-left: clamp(6.5rem, 40svh, 32rem);
+  padding-right: clamp(0.75rem, 2vw, 1.5rem);
   box-sizing: border-box;
-  transform: translateY(-2rem);
+  transform: translateY(0.35rem);
+  /* Title shift/scale — meta + stickers track these */
+  --hero-title-shift-x: clamp(1.25rem, 4.25vw, 4rem);
+  --hero-title-scale-x: 0.94;
+  --hero-title-scale-y: 0.76;
 }
 
 .hero__title-block {
   position: relative;
   width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  container-type: inline-size;
+}
+
+/* MET/ENG/COMP scale/shift — date sits outside so it can’t inherit overflow */
+.hero__title-cluster {
+  position: relative;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  transform: translateX(var(--hero-title-shift-x))
+    scale(var(--hero-title-scale-x), var(--hero-title-scale-y));
+  transform-origin: left top;
 }
 
 /*
   Ultra-wide stretched block — full viewport width,
-  shorter rows so horizontal stretch dominates (like the reference).
+  taller rows with equal gutters between MET / ENG / COMP.
 */
 .hero__title {
   margin: 0;
@@ -61,11 +109,10 @@
   flex-direction: column;
   gap: 0;
   width: 100%;
-  height: clamp(20rem, 54vh, 38rem);
+  height: clamp(28rem, 70vh, 50rem);
   padding: 0;
   box-sizing: border-box;
   color: #ffffff;
-  /* Allow last-row glyph bottoms to paint; x still clipped by .hero */
   overflow: visible;
 }
 
@@ -87,6 +134,11 @@
   visibility: hidden;
 }
 
+/* Structural wrapper only — no layout box, so scaling/spacing stay identical */
+.hero__title-group {
+  display: contents;
+}
+
 .hero__title-slot {
   position: relative;
   display: flex;
@@ -100,11 +152,9 @@
   overflow: visible;
 }
 
-.hero__title-slot:last-child {
-  padding: 0;
-  margin: 0;
-  /* Keep the bottom row fully visible under vertical stretch */
-  overflow: visible;
+.hero__title-slot + .hero__title-slot {
+  /* Pull ENG/COMP up so row gutters read tighter */
+  margin-top: -0.75rem;
 }
 
 .hero__title-line {
@@ -132,7 +182,8 @@
   font-weight: 400;
   font-kerning: normal;
   letter-spacing: -0.03em;
-  line-height: 0.85;
+  line-height: 1;
+  vertical-align: top;
   text-transform: uppercase;
   color: #ffffff;
   margin: 0;
@@ -142,6 +193,8 @@
 
 .hero__split-word {
   display: inline-block;
+  line-height: 1;
+  vertical-align: top;
   will-change: transform, opacity;
 }
 
@@ -149,6 +202,7 @@
   position: absolute;
   left: 0;
   top: 0;
+  bottom: auto;
   display: flex;
   align-items: flex-start;
   overflow: visible;
@@ -159,35 +213,61 @@
 .hero__meta {
   position: absolute;
   top: -0.85rem;
-  right: 2%;
+  /*
+    Align with the scaled title’s visual right edge (scale is from the left,
+    then horizontal shift is applied).
+  */
+  right: max(
+    0px,
+    calc((1 - var(--hero-title-scale-x)) * 100% - var(--hero-title-shift-x))
+  );
   left: auto;
   z-index: 2;
   margin: 0;
-  padding: 0;
-  width: max-content;
+  padding: 0 0.15rem 0 0;
+  width: auto;
+  max-width: min(
+    100%,
+    calc(100vw - 1.5rem - env(safe-area-inset-left, 0px) - env(safe-area-inset-right, 0px))
+  );
+  box-sizing: border-box;
+  text-align: right;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.hero__meta-text {
+  display: block;
+  width: 100%;
   max-width: 100%;
   box-sizing: border-box;
   font-family: var(--font-body);
   font-weight: 400;
-  font-size: clamp(0.95rem, 1.65vw, 1.25rem);
-  line-height: 1.3;
+  font-size: clamp(0.68rem, 0.3rem + 1.85vw, 1.4rem);
+  line-height: 1.25;
   text-align: right;
   text-transform: uppercase;
   letter-spacing: 0.04em;
   white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
   color: #b0b0b0;
-  pointer-events: none;
 }
 
 .hero__stickers {
   list-style: none;
-  margin: 2.25rem 0 0;
+  margin: -5rem 0 0 var(--hero-title-shift-x);
   padding: 0;
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 1.4rem 1.75rem;
+  --hero-sticker-row-gap: clamp(0.7rem, 1.35vw, 1.15rem);
+  --hero-sticker-col-gap: clamp(1.25rem, 2vw, 1.85rem);
+  gap: var(--hero-sticker-row-gap) var(--hero-sticker-col-gap);
   overflow: visible;
+  --hero-sticker-scale: 0.82;
+  transform: scale(var(--hero-sticker-scale));
+  transform-origin: left top;
 }
 
 .hero__sticker {
@@ -195,7 +275,7 @@
   transform: rotate(var(--sticker-angle, 0deg));
   z-index: 1;
   overflow: visible;
-  padding-bottom: 0.65rem;
+  padding-bottom: 0.35rem;
 }
 
 .hero__sticker:hover {
@@ -213,35 +293,35 @@
 }
 
 .hero__sticker-peel {
-  --sticker-width: clamp(11.5rem, 22vw, 19.5rem);
+  --sticker-width: clamp(7.25rem, 13.5vw, 12rem);
 }
 
 .hero__sticker-peel .sticker-image {
-  width: clamp(11.5rem, 22vw, 19.5rem);
+  width: clamp(7.25rem, 13.5vw, 12rem);
 }
 
 .hero__sticker--medium .hero__sticker-peel {
-  --sticker-width: clamp(13.5rem, 25vw, 22rem);
+  --sticker-width: clamp(8.5rem, 15.5vw, 13.75rem);
 }
 
 .hero__sticker--medium .hero__sticker-peel .sticker-image {
-  width: clamp(13.5rem, 25vw, 22rem);
+  width: clamp(8.5rem, 15.5vw, 13.75rem);
 }
 
 .hero__sticker--larger .hero__sticker-peel {
-  --sticker-width: clamp(16rem, 29vw, 26rem);
+  --sticker-width: clamp(9.75rem, 17.5vw, 16rem);
 }
 
 .hero__sticker--larger .hero__sticker-peel .sticker-image {
-  width: clamp(16rem, 29vw, 26rem);
+  width: clamp(9.75rem, 17.5vw, 16rem);
 }
 
 .hero__sticker--xlarge .hero__sticker-peel {
-  --sticker-width: clamp(18.5rem, 33vw, 30rem);
+  --sticker-width: clamp(11.25rem, 20vw, 18.5rem);
 }
 
 .hero__sticker--xlarge .hero__sticker-peel .sticker-image {
-  width: clamp(18.5rem, 33vw, 30rem);
+  width: clamp(11.25rem, 20vw, 18.5rem);
 }
 
 .hero__sticker--xlarge .sticker-stroke {
@@ -252,18 +332,272 @@
   transform: translateX(0);
 }
 
-@media (max-width: 700px) {
-  .hero__gear {
-    height: 130%;
-    transform: translate(-46%, -50%);
+/* Larger desktops / wide landscape — bigger stickers */
+@media (min-width: 1200px) and (orientation: landscape) {
+  .hero__stickers {
+    --hero-sticker-scale: 1.1;
+    --hero-sticker-row-gap: clamp(1.2rem, 1.9vw, 1.9rem);
+    --hero-sticker-col-gap: clamp(1.5rem, 2.2vw, 2.25rem);
+  }
+
+  .hero__sticker-peel {
+    --sticker-width: clamp(9.25rem, 14vw, 15.5rem);
+  }
+
+  .hero__sticker-peel .sticker-image {
+    width: clamp(9.25rem, 14vw, 15.5rem);
+  }
+
+  .hero__sticker--medium .hero__sticker-peel {
+    --sticker-width: clamp(10.5rem, 16vw, 17.5rem);
+  }
+
+  .hero__sticker--medium .hero__sticker-peel .sticker-image {
+    width: clamp(10.5rem, 16vw, 17.5rem);
+  }
+
+  .hero__sticker--larger .hero__sticker-peel {
+    --sticker-width: clamp(12rem, 18vw, 20.5rem);
+  }
+
+  .hero__sticker--larger .hero__sticker-peel .sticker-image {
+    width: clamp(12rem, 18vw, 20.5rem);
+  }
+
+  .hero__sticker--xlarge .hero__sticker-peel {
+    --sticker-width: clamp(14rem, 21vw, 24rem);
+  }
+
+  .hero__sticker--xlarge .hero__sticker-peel .sticker-image {
+    width: clamp(14rem, 21vw, 24rem);
+  }
+}
+
+@media (min-width: 1600px) and (orientation: landscape) {
+  .hero__inner {
+    padding-left: clamp(16rem, 46svh, 38rem);
+    --hero-title-shift-x: clamp(1.25rem, 3vw, 3.5rem);
+  }
+
+  .hero__meta {
+    top: -1rem;
+    right: max(
+      0px,
+      calc((1 - var(--hero-title-scale-x)) * 100% - var(--hero-title-shift-x))
+    );
+  }
+
+  .hero__meta-text {
+    font-size: clamp(1.05rem, 1.15rem + 0.35vw, 1.5rem);
+  }
+
+  .hero__stickers {
+    --hero-sticker-scale: 1.2;
+    --hero-sticker-row-gap: clamp(1.5rem, 2.4vw, 2.4rem);
+    --hero-sticker-col-gap: clamp(1.75rem, 2.6vw, 2.6rem);
+  }
+
+  .hero__sticker-peel {
+    --sticker-width: clamp(10.5rem, 15vw, 17.5rem);
+  }
+
+  .hero__sticker-peel .sticker-image {
+    width: clamp(10.5rem, 15vw, 17.5rem);
+  }
+
+  .hero__sticker--medium .hero__sticker-peel {
+    --sticker-width: clamp(11.75rem, 17vw, 19.5rem);
+  }
+
+  .hero__sticker--medium .hero__sticker-peel .sticker-image {
+    width: clamp(11.75rem, 17vw, 19.5rem);
+  }
+
+  .hero__sticker--larger .hero__sticker-peel {
+    --sticker-width: clamp(13.5rem, 19vw, 22.5rem);
+  }
+
+  .hero__sticker--larger .hero__sticker-peel .sticker-image {
+    width: clamp(13.5rem, 19vw, 22.5rem);
+  }
+
+  .hero__sticker--xlarge .hero__sticker-peel {
+    --sticker-width: clamp(15.5rem, 22vw, 27rem);
+  }
+
+  .hero__sticker--xlarge .hero__sticker-peel .sticker-image {
+    width: clamp(15.5rem, 22vw, 27rem);
+  }
+}
+
+/* Phones + portrait / narrow — date stays on-page; stickers nest by gear */
+@media (max-width: 1024px), (orientation: portrait) {
+  .hero {
+    overflow-x: clip;
   }
 
   .hero__inner {
-    padding-left: clamp(5rem, 38vw, 12rem);
+    /* Shift was pushing title + date past the viewport on narrow screens */
+    --hero-title-shift-x: 0;
+    overflow-x: clip;
+    max-width: 100%;
+  }
+
+  .hero__title-block {
+    overflow: visible;
+    max-width: 100%;
+  }
+
+  .hero__meta {
+    top: -0.45rem;
+    right: max(0.25rem, env(safe-area-inset-right, 0px));
+    left: 0.25rem;
+    width: auto;
+    max-width: calc(
+      100vw - 0.75rem - env(safe-area-inset-left, 0px) - env(safe-area-inset-right, 0px)
+    );
+    overflow: hidden;
+  }
+
+  .hero__meta-text {
+    display: block;
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+    font-size: clamp(0.5rem, 2.2vw + 0.15rem, 0.82rem);
+    letter-spacing: 0.02em;
+    white-space: normal;
+    overflow-wrap: anywhere;
+    word-break: break-word;
+    overflow: hidden;
+    line-height: 1.2;
+  }
+
+  .hero__stickers {
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    align-content: flex-end;
+    justify-content: flex-start;
+    width: min(100%, 23rem);
+    max-width: calc(100% + 1.5rem);
+    box-sizing: border-box;
+    --hero-sticker-row-gap: 0.45rem;
+    --hero-sticker-col-gap: 0.55rem;
+    gap: var(--hero-sticker-row-gap) var(--hero-sticker-col-gap);
+    --hero-sticker-scale: 0.92;
+    /* Sit under the title, shifted right clear of the gear */
+    margin-top: clamp(0.25rem, 2vh, 1rem);
+    margin-left: clamp(3.5rem, 16vw, 7.5rem);
+    margin-right: 0;
+    padding-left: 0;
+    transform: scale(var(--hero-sticker-scale));
+    transform-origin: left bottom;
+  }
+
+  .hero__sticker {
+    width: auto;
+    /* Soften rotation so stacked rows stay readable */
+    transform: rotate(calc(var(--sticker-angle, 0deg) * 0.4));
+    padding-bottom: 0.25rem;
+  }
+
+  .hero__sticker--shop {
+    transform: translate(2.5rem, -5.4rem)
+      rotate(calc(var(--sticker-angle, 0deg) * 0.4));
+  }
+
+  .hero__sticker--rulebook {
+    transform: translate(1.6rem, -4.4rem)
+      rotate(calc(var(--sticker-angle, 0deg) * 0.4));
+  }
+
+  .hero__sticker--schedule {
+    transform: translate(1rem, -3.4rem)
+      rotate(calc(var(--sticker-angle, 0deg) * 0.4));
+  }
+
+  .hero__sticker--judge {
+    transform: translate(-1.35rem, -2.15rem)
+      rotate(calc(var(--sticker-angle, 0deg) * 0.4));
+  }
+
+  .hero__sticker--participant {
+    transform: translate(-18.5rem, -2.75rem)
+      rotate(calc(var(--sticker-angle, 0deg) * 0.4));
+  }
+
+  .hero__sticker--rooms {
+    transform: translate(-6rem, -2.25rem)
+      rotate(calc(var(--sticker-angle, 0deg) * 0.4));
+  }
+
+  .hero__sticker--board {
+    transform: translate(-18.5rem, -1.35rem)
+      rotate(calc(var(--sticker-angle, 0deg) * 0.4));
+  }
+
+  .hero__sticker-peel {
+    --sticker-width: clamp(9rem, 46vw, 13rem);
+  }
+
+  .hero__sticker-peel .sticker-image {
+    width: clamp(9rem, 46vw, 13rem);
+  }
+
+  .hero__sticker--medium .hero__sticker-peel {
+    --sticker-width: clamp(11rem, 54vw, 15.5rem);
+  }
+
+  .hero__sticker--medium .hero__sticker-peel .sticker-image {
+    width: clamp(11rem, 54vw, 15.5rem);
+  }
+
+  .hero__sticker--larger .hero__sticker-peel {
+    --sticker-width: clamp(15rem, 68vw, 21rem);
+  }
+
+  .hero__sticker--larger .hero__sticker-peel .sticker-image {
+    width: clamp(15rem, 68vw, 21rem);
+  }
+
+  .hero__sticker--xlarge .hero__sticker-peel {
+    --sticker-width: clamp(16.5rem, 72vw, 22.5rem);
+  }
+
+  .hero__sticker--xlarge .hero__sticker-peel .sticker-image {
+    width: clamp(16.5rem, 72vw, 22.5rem);
+  }
+}
+
+@media (max-width: 700px) {
+  /* Scale only — keep locked left / top / translate */
+  .hero__gear {
+    height: 105%;
+  }
+
+  .hero__inner {
+    padding-left: clamp(4.5rem, 32svh, 12rem);
+    padding-right: clamp(0.5rem, 2vw, 1rem);
+  }
+
+  .hero__meta {
+    top: -0.3rem;
+    right: max(0px, calc((1 - var(--hero-title-scale-x)) * 100%));
+    left: 0.15rem;
+  }
+
+  .hero__meta-text {
+    font-size: clamp(0.48rem, 2.6vw, 0.75rem);
+    letter-spacing: 0.015em;
+  }
+
+  .hero__stickers {
+    margin-left: clamp(4rem, 20vw, 8.5rem);
   }
 
   .hero__title {
-    height: clamp(14rem, 40vh, 23rem);
+    height: clamp(20rem, 55vh, 32rem);
     padding: 0;
     gap: 0;
   }
@@ -276,13 +610,32 @@
     padding-bottom: 1.5rem;
   }
 
+  /* Short landscape: stage follows the short hero, not a full viewport */
+  .hero__gear-stage {
+    height: 100%;
+  }
+
+  /* Scale only — keep locked left / top / translate */
   .hero__gear {
-    height: 120%;
-    top: 48%;
+    height: 100%;
+  }
+
+  .hero__inner {
+    padding-left: clamp(5rem, 36svh, 14rem);
+  }
+
+  .hero__meta {
+    top: -0.25rem;
+    right: max(0px, calc((1 - var(--hero-title-scale-x)) * 100%));
+    left: 0.15rem;
+  }
+
+  .hero__meta-text {
+    font-size: clamp(0.45rem, 1.8vh + 0.3vw, 0.7rem);
   }
 
   .hero__title {
-    height: clamp(10.5rem, 46vh, 17rem);
+    height: clamp(14rem, 58vh, 24rem);
     padding: 0;
     gap: 0;
   }

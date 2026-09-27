@@ -33,32 +33,64 @@ async function ensureDisplayFont() {
   }
 }
 
+/** Overfill so rows sit tighter than the slot bounds. */
+const FIT_Y_FILL = 1.14;
+
 function measureInk(text: string, fontFamily: string, fontSize: number) {
   const canvas = document.createElement('canvas');
   const ctx = canvas.getContext('2d');
   if (!ctx) {
-    return { width: fontSize * text.length * 0.6, height: fontSize };
+    return { width: fontSize * text.length * 0.6, height: fontSize * 0.8 };
   }
 
   ctx.font = `400 ${fontSize}px ${fontFamily}`;
   const metrics = ctx.measureText(text);
-  const ascent = metrics.actualBoundingBoxAscent || fontSize * 0.75;
-  const descent = metrics.actualBoundingBoxDescent || fontSize * 0.15;
   const gaps = Math.max(Array.from(text).length - 1, 0);
   const tracking = fontSize * LETTER_SPACING_EM * gaps;
+  const ascent = metrics.actualBoundingBoxAscent || fontSize * 0.75;
+  const descent = metrics.actualBoundingBoxDescent || fontSize * 0.15;
 
   return {
     width: Math.max(metrics.width + tracking, 1),
-    /* Slight bottom slack so scaled glyphs aren't clipped. */
-    height: Math.max(ascent + descent, 1) * 1.06,
+    height: Math.max(ascent + descent, 1),
   };
+}
+
+/** SVG getBBox width — stable horizontal fit across MET / ENG / COMP. */
+function measureGlyphWidth(text: string, fontFamily: string, fontSize: number) {
+  if (typeof document === 'undefined') {
+    return measureInk(text, fontFamily, fontSize).width;
+  }
+
+  const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+  svg.setAttribute('xmlns', 'http://www.w3.org/2000/svg');
+  svg.style.cssText =
+    'position:absolute;left:-99999px;top:0;visibility:hidden;pointer-events:none';
+  const node = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+  node.setAttribute('x', '0');
+  node.setAttribute('y', '0');
+  node.setAttribute('font-family', fontFamily);
+  node.setAttribute('font-size', String(fontSize));
+  node.setAttribute('font-weight', '400');
+  node.style.letterSpacing = `${LETTER_SPACING_EM}em`;
+  node.textContent = text;
+  svg.appendChild(node);
+  document.body.appendChild(svg);
+  let width = fontSize * text.length * 0.6;
+  try {
+    width = Math.max(node.getBBox().width, 1);
+  } catch {
+    width = measureInk(text, fontFamily, fontSize).width;
+  }
+  svg.remove();
+  return width;
 }
 
 function widestUnitWidth(cycles: readonly (readonly string[])[]) {
   let max = 1;
   for (const cycle of cycles) {
     for (const line of cycle) {
-      const { width } = measureInk(line, DISPLAY_FONT_STACK, BASE_FONT_SIZE);
+      const width = measureGlyphWidth(line, DISPLAY_FONT_STACK, BASE_FONT_SIZE);
       if (width > max) max = width;
     }
   }
@@ -66,9 +98,8 @@ function widestUnitWidth(cycles: readonly (readonly string[])[]) {
 }
 
 /**
- * Scale each line to fill its row using the font’s natural spacing/kerning.
- * Waits for Brigends before measuring — cold loads otherwise lock a fallback
- * scale and overflow until refresh. Skip remasure only after SplitText runs.
+ * Stretch each line to the full row width/height so the glyphs themselves
+ * grow taller — not just empty space in the title container.
  */
 function TitleLine({
   text,
@@ -82,17 +113,19 @@ function TitleLine({
   onFit?: () => void;
 }) {
   const frameRef = useRef<HTMLSpanElement>(null);
+  const scalerRef = useRef<HTMLSpanElement>(null);
   const wordRef = useRef<HTMLSpanElement>(null);
   const fittedRef = useRef(false);
-  const onFitRef = useRef(onFit);
-  onFitRef.current = onFit;
-  const [fit, setFit] = useState({
+  const fitRef = useRef({
     x: 1,
     y: 1,
     inkW: 100,
     inkH: 100,
     fontSize: BASE_FONT_SIZE,
   });
+  const onFitRef = useRef(onFit);
+  onFitRef.current = onFit;
+  const [fit, setFit] = useState(fitRef.current);
 
   useLayoutEffect(() => {
     fittedRef.current = false;
@@ -100,21 +133,28 @@ function TitleLine({
 
   useLayoutEffect(() => {
     const frame = frameRef.current;
+    const scaler = scalerRef.current;
     const word = wordRef.current;
-    if (!frame || !word || !fontsReady || maxUnitWidth <= 1) return;
+    if (!frame || !scaler || !word || !fontsReady || maxUnitWidth <= 1) return;
 
     let cancelled = false;
 
-    const measure = () => {
-      /* SplitText mutates the word DOM — remasuring would change inkW/scaleX. */
+    const applyFit = (next: typeof fitRef.current) => {
+      fitRef.current = next;
+      setFit(next);
+    };
+
+    /** Full ink measure — only safe before SplitText mutates the word. */
+    const measureFull = () => {
       if (word.querySelector('.hero__split-word')) return;
 
       const family =
         getComputedStyle(frame).fontFamily || DISPLAY_FONT_STACK;
-      const unit = measureInk(text, family, BASE_FONT_SIZE);
-      const refWidth = Math.max(unit.width, maxUnitWidth);
+      const unitW = measureGlyphWidth(text, family, BASE_FONT_SIZE);
+      const unitH = measureInk(text, family, BASE_FONT_SIZE).height;
+      const refWidth = Math.max(unitW, maxUnitWidth);
       const fitX = frame.clientWidth / refWidth;
-      const fitY = frame.clientHeight / unit.height;
+      const fitY = frame.clientHeight / Math.max(unitH, 1);
       const dpr = Math.min(
         typeof window !== 'undefined' ? window.devicePixelRatio || 1 : 1,
         2,
@@ -128,16 +168,52 @@ function TitleLine({
       word.style.fontSize = `${fontSize}px`;
       word.style.letterSpacing = `${LETTER_SPACING_EM}em`;
 
-      /* Canvas ink only — scrollWidth shifts after SplitText wraps the word. */
-      const ink = measureInk(text, family, fontSize);
-      const inkW = Math.max(ink.width, 1);
-      const inkH = Math.max(ink.height, 1);
+      /*
+        Measure the unscaled HTML word. SVG getBBox was taller than the
+        painted HTML glyphs, so scale filled empty box space instead of
+        making the letters taller.
+      */
+      const prevTransform = scaler.style.transform;
+      scaler.style.transform = 'none';
+      scaler.style.width = 'auto';
+      scaler.style.height = 'auto';
+      void word.offsetWidth;
 
-      setFit({
-        /* Stretch each line to the full hero width. */
+      const inkW = Math.max(measureGlyphWidth(text, family, fontSize), 1);
+      const inkH = Math.max(word.offsetHeight, 1);
+
+      scaler.style.transform = prevTransform;
+
+      applyFit({
         x: frame.clientWidth / inkW,
-        /* Keep a hair of room so the bottom row isn’t clipped by rounding */
-        y: (frame.clientHeight / inkH) * 0.98,
+        y: (frame.clientHeight / inkH) * FIT_Y_FILL,
+        inkW,
+        inkH,
+        fontSize,
+      });
+    };
+
+    /**
+     * After SplitText, remasuring the word DOM is unsafe. Re-fit using the
+     * stored ink size so scale still tracks resize / orientation changes.
+     */
+    const measureScale = () => {
+      const { inkW, inkH, fontSize } = fitRef.current;
+      if (inkW <= 1 || inkH <= 1) return;
+
+      const nextX = frame.clientWidth / inkW;
+      const nextY = (frame.clientHeight / inkH) * FIT_Y_FILL;
+      const prev = fitRef.current;
+      if (
+        Math.abs(prev.x - nextX) < 0.001 &&
+        Math.abs(prev.y - nextY) < 0.001
+      ) {
+        return;
+      }
+
+      applyFit({
+        x: nextX,
+        y: nextY,
         inkW,
         inkH,
         fontSize,
@@ -146,28 +222,50 @@ function TitleLine({
 
     const run = () => {
       if (cancelled) return;
-      measure();
-      if (!fittedRef.current && !word.querySelector('.hero__split-word')) {
-        fittedRef.current = true;
-        onFitRef.current?.();
+      if (word.querySelector('.hero__split-word')) {
+        measureScale();
+      } else {
+        measureFull();
+        if (!fittedRef.current) {
+          fittedRef.current = true;
+          onFitRef.current?.();
+        }
       }
     };
 
     run();
+
     const observer = new ResizeObserver(() => {
-      if (word.querySelector('.hero__split-word')) return;
-      measure();
+      if (cancelled) return;
+      if (word.querySelector('.hero__split-word')) {
+        measureScale();
+      } else {
+        measureFull();
+      }
     });
     observer.observe(frame);
+
+    const onWindowResize = () => {
+      if (cancelled) return;
+      if (word.querySelector('.hero__split-word')) {
+        measureScale();
+      } else {
+        measureFull();
+      }
+    };
+    window.addEventListener('resize', onWindowResize);
+
     return () => {
       cancelled = true;
       observer.disconnect();
+      window.removeEventListener('resize', onWindowResize);
     };
   }, [text, maxUnitWidth, fontsReady]);
 
   return (
     <span ref={frameRef} className="hero__title-line">
       <span
+        ref={scalerRef}
         className="hero__title-scaler"
         style={{
           width: fit.inkW,
@@ -274,7 +372,8 @@ export function Hero() {
     return () => {
       tween.kill();
       gsap.killTweensOf(split.words);
-      /* Skip revert — remount handles cleanup; revert flashes unsplit text. */
+      /* Snap visible — killed mid-tween (Strict Mode/HMR) left words at opacity 0. */
+      gsap.set(split.words, { x: 0, y: 0, autoAlpha: 1, rotation: 0 });
     };
   }, [cycleIndex, reduced, linesReady]);
 
@@ -347,53 +446,61 @@ export function Hero() {
   return (
     <section id="hero" className="hero" aria-labelledby="hero-title">
       {hasGear ? (
-        <div className="hero__gear" aria-hidden="true">
-          <motion.img
-            className="hero__gear-img"
-            src={hero.gearSrc}
-            alt=""
-            animate={reduced ? undefined : { rotate: 360 }}
-            transition={
-              reduced
-                ? undefined
-                : { duration: 28, ease: 'linear', repeat: Infinity }
-            }
-          />
+        <div className="hero__gear-stage" aria-hidden="true">
+          <div className="hero__gear">
+            <motion.img
+              className="hero__gear-img"
+              src={hero.gearSrc}
+              alt=""
+              animate={reduced ? undefined : { rotate: 360 }}
+              transition={
+                reduced
+                  ? undefined
+                  : { duration: 28, ease: 'linear', repeat: Infinity }
+              }
+            />
+          </div>
         </div>
       ) : null}
 
       <div className="hero__inner">
         <div className="hero__title-block">
-          <h1 id="hero-title" className="hero__title" aria-label={activeLines.join(' ')}>
-            <span
-              key={cycleIndex}
-              ref={cycleRef}
-              className={
-                reduced
-                  ? 'hero__title-cycle'
-                  : 'hero__title-cycle hero__title-cycle--pending'
-              }
-            >
-              {activeLines.map((line, i) => (
-                <span key={`${cycleIndex}-${i}`} className="hero__title-slot">
-                  <TitleLine
-                    text={line}
-                    maxUnitWidth={maxUnitWidth}
-                    fontsReady={fontsReady}
-                    onFit={() => {
-                      if (fitGateRef.current.cycle !== cycleIndex) return;
-                      fitGateRef.current.count += 1;
-                      setFitTick((n) => n + 1);
-                    }}
-                  />
-                </span>
-              ))}
-            </span>
-          </h1>
-
           <motion.p className="hero__meta" {...fade(0.22)}>
-            {hero.eventDate} @ {hero.eventLocation}
+            <span className="hero__meta-text">
+              {hero.eventDate} @ {hero.eventLocation}
+            </span>
           </motion.p>
+
+          <div className="hero__title-cluster">
+            <h1 id="hero-title" className="hero__title" aria-label={activeLines.join(' ')}>
+              <span
+                key={`fit16-${cycleIndex}`}
+                ref={cycleRef}
+                className={
+                  reduced
+                    ? 'hero__title-cycle'
+                    : 'hero__title-cycle hero__title-cycle--pending'
+                }
+              >
+                <span className="hero__title-group">
+                  {activeLines.map((line, i) => (
+                    <span key={`${cycleIndex}-${i}`} className="hero__title-slot">
+                      <TitleLine
+                        text={line}
+                        maxUnitWidth={maxUnitWidth}
+                        fontsReady={fontsReady}
+                        onFit={() => {
+                          if (fitGateRef.current.cycle !== cycleIndex) return;
+                          fitGateRef.current.count += 1;
+                          setFitTick((n) => n + 1);
+                        }}
+                      />
+                    </span>
+                  ))}
+                </span>
+              </span>
+            </h1>
+          </div>
         </div>
 
         {hero.stickers.length > 0 ? (
@@ -415,6 +522,20 @@ export function Hero() {
                 <li
                   key={sticker.id}
                   className={`hero__sticker${
+                    sticker.id === 'sticker-shop' ? ' hero__sticker--shop' : ''
+                  }${
+                    sticker.id === 'sticker-rulebook' ? ' hero__sticker--rulebook' : ''
+                  }${
+                    sticker.id === 'sticker-schedule' ? ' hero__sticker--schedule' : ''
+                  }${
+                    sticker.id === 'sticker-judge' ? ' hero__sticker--judge' : ''
+                  }${
+                    sticker.id === 'sticker-participant' ? ' hero__sticker--participant' : ''
+                  }${
+                    sticker.id === 'sticker-rooms' ? ' hero__sticker--rooms' : ''
+                  }${
+                    sticker.id === 'sticker-board' ? ' hero__sticker--board' : ''
+                  }${
                     sticker.id === 'sticker-board'
                       ? ' hero__sticker--xlarge'
                       : sticker.id === 'sticker-participant' || sticker.id === 'sticker-rooms'
