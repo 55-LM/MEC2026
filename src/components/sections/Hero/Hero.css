@@ -186,6 +186,7 @@
   vertical-align: top;
   text-transform: uppercase;
   color: #ffffff;
+  -webkit-text-fill-color: #ffffff;
   margin: 0;
   padding: 0;
   overflow: visible;
@@ -196,6 +197,8 @@
   line-height: 1;
   vertical-align: top;
   will-change: transform, opacity;
+  color: #ffffff;
+  -webkit-text-fill-color: #ffffff;
 }
 
 .hero__title-scaler {
