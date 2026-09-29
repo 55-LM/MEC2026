@@ -1,90 +1,230 @@
+/* Full-width inner so the box group can sit near page edges */
+.sponsors.section-container .section-container__inner {
+  width: 100%;
+  max-width: none;
+  padding-inline: clamp(0.2rem, 0.6vw, 0.55rem);
+  box-sizing: border-box;
+}
+
+.sponsors__title {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  margin: 0 0 clamp(1.75rem, 4vw, 2.75rem);
+  text-align: center;
+}
+
+.sponsors__title-sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.sponsors__title-stickers {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: min(100%, 28rem);
+  margin-inline: auto;
+}
+
+.sponsors__title-sticker {
+  display: block;
+  width: auto;
+  height: auto;
+  max-width: 100%;
+  object-fit: contain;
+  user-select: none;
+  pointer-events: none;
+  filter: drop-shadow(0 6px 14px rgba(0, 0, 0, 0.45));
+}
+
+/* OUR — sits on the top-left of SPONSORS, slightly angled */
+.sponsors__title-sticker--1 {
+  position: absolute;
+  left: -8%;
+  top: -44%;
+  width: min(50%, 12.5rem);
+  z-index: 2;
+  transform: rotate(-12deg);
+  transform-origin: center center;
+}
+
+/* SPONSORS */
+.sponsors__title-sticker--2 {
+  position: relative;
+  width: min(100%, 26rem);
+  z-index: 1;
+}
+
+.sponsors__intro {
+  width: min(100%, 42rem);
+  margin: clamp(1rem, 2.5vw, 1.5rem) auto 0;
+  padding-inline: 0.5rem;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.9rem;
+}
+
+.sponsors__intro-text {
+  margin: 0;
+  max-width: 100%;
+  font-family: var(--font-body);
+  font-size: clamp(0.92rem, 1.7vw, 1.1rem);
+  font-weight: 400;
+  line-height: 1.45;
+  text-align: center;
+  color: var(--color-secondary);
+}
+
+@media (max-width: 1024px), (orientation: portrait) {
+  .sponsors__title-stickers {
+    width: min(100%, 22rem);
+  }
+
+  .sponsors__title-sticker--1 {
+    left: -10%;
+    top: -42%;
+    width: min(52%, 10rem);
+    transform: rotate(-11deg);
+  }
+
+  .sponsors__title-sticker--2 {
+    width: min(100%, 20rem);
+  }
+
+  .sponsors__title-sticker {
+    filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.4));
+  }
+
+  .sponsors__intro-text {
+    font-size: clamp(1.05rem, 4vw, 1.28rem);
+    line-height: 1.5;
+  }
+}
+
+/*
+  One stage for all three boxes — composition is locked in %,
+  so the group scales together on every viewport.
+*/
+.sponsors__stage {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  overflow: visible;
+  transform: translateY(clamp(-10.5rem, -16vw, -7rem));
+}
+
+@property --sponsor-sway {
+  syntax: '<angle>';
+  inherits: true;
+  initial-value: 0deg;
+}
+
 .sponsors__boxes {
-  display: grid;
-  gap: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  width: 100%;
+  max-width: 100rem;
+  box-sizing: border-box;
+  container-type: inline-size;
+  container-name: sponsors-boxes;
+  /* One clock drives both leans — always in phase, opposite directions */
+  --sponsor-sway: 0deg;
+  animation: sponsor-sway-drive 7s ease-in-out infinite;
 }
 
 .sponsor-box {
   position: relative;
-  background:
-    linear-gradient(145deg, rgba(36, 36, 34, 0.95), rgba(18, 18, 18, 0.92));
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-md);
-  padding: 1.25rem;
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04), var(--shadow-sm);
+  margin: 0;
+  /* Same fraction of the stage for every tier */
+  width: 78%;
+  max-width: none;
+  line-height: 0;
+  background: transparent;
 }
 
-.sponsor-box::before {
-  content: '';
-  position: absolute;
-  inset: 0.45rem;
-  border: 1px dashed rgba(255, 255, 255, 0.08);
-  border-radius: calc(var(--radius-md) - 2px);
+.sponsor-box--left {
+  align-self: flex-start;
+}
+
+.sponsor-box--right {
+  align-self: flex-end;
+}
+
+/* Stack order: Principle on top → Impact → Network behind */
+.sponsor-box--tier1 {
+  z-index: 3;
+  width: 82%;
+  margin-top: 0;
+  /* Pivot near the left edge — leans opposite of Impact */
+  transform: rotate(calc(-2.5deg - var(--sponsor-sway))) translate(-4.5%, 16%);
+  transform-origin: 18% 92%;
+  will-change: transform;
+}
+
+.sponsor-box--tier2 {
+  z-index: 2;
+  /* Pivot near the right edge — leans opposite of Principle */
+  transform: rotate(calc(2.25deg + var(--sponsor-sway))) translate(2.5%, 10.5%);
+  transform-origin: 82% 92%;
+  will-change: transform;
+}
+
+.sponsor-box--tier3 {
+  z-index: 1;
+}
+
+@keyframes sponsor-sway-drive {
+  0%,
+  100% {
+    --sponsor-sway: 0deg;
+  }
+  50% {
+    --sponsor-sway: 1.7deg;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sponsors__boxes {
+    animation: none;
+  }
+
+  .sponsor-box--tier1,
+  .sponsor-box--tier2 {
+    will-change: auto;
+  }
+}
+
+/* Overlap as a fraction of the stage width — scales with the group */
+.sponsor-box + .sponsor-box {
+  margin-top: -26%;
+}
+
+.sponsor-box__image {
+  display: block;
+  width: 100%;
+  height: auto;
+  user-select: none;
   pointer-events: none;
 }
 
-.sponsor-box--high {
-  border-color: color-mix(in srgb, var(--color-accent) 35%, var(--color-border));
-  padding: 1.5rem;
-}
-
-.sponsor-box--high .sponsor-box__header h3 {
-  color: var(--color-accent);
-}
-
-.sponsor-box__header {
-  position: relative;
-  margin-bottom: 1.1rem;
-}
-
-.sponsor-box__header h3 {
-  margin: 0 0 0.35rem;
-  font-family: var(--font-display);
-  font-size: var(--text-h3);
-}
-
-.sponsor-box__header p {
-  margin: 0;
-  font-size: var(--text-small);
-}
-
-.sponsor-box__stickers {
-  position: relative;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.9rem 1rem;
-  align-items: center;
-  justify-content: flex-start;
-}
-
-.sponsor-box__empty {
-  margin: 0;
-  font-size: var(--text-small);
-}
-
-@media (min-width: 768px) {
-  .sponsors__boxes {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    align-items: start;
-  }
-
-  .sponsor-box--high {
-    grid-column: 1 / -1;
-  }
-}
-
-@media (min-width: 1100px) {
-  .sponsors__boxes {
-    grid-template-columns: 1.15fr 1fr 1fr;
-  }
-
-  .sponsor-box--high {
-    grid-column: auto;
-    min-height: 100%;
-  }
-}
-
+/* Short landscape — keep the same composition, just a narrower stage */
 @media (max-height: 500px) and (orientation: landscape) {
-  .sponsor-box {
-    padding: 1rem;
+  .sponsors__boxes {
+    max-width: min(100%, 36rem);
   }
 }

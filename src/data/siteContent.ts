@@ -237,8 +237,10 @@ export const siteContent: SiteContent = {
   competitionsIntro:
     'Please review the competition rulebook and the abstract and scoring rubrics for your competition so you understand all requirements and how you’ll be evaluated.',
 
-  sponsorsIntro:
-    'MEC is made possible by the support of our partners. Official sponsor names and logos will appear here as confirmations arrive.',
+  sponsorsIntro: [
+    "As a sponsor, you'll have opportunities to promote your brand, connect with engineering students, meet past competition winners, and help build the next generation of engineers.",
+    'Partnering with MEC gives your company valuable exposure to 500+ attendees with proven design skills who are ready to make an impact at your organization.',
+  ],
 
   faqIntro:
     'Answers to common participant questions. Official policies will replace these examples when confirmed.',

@@ -180,7 +180,9 @@ export type SponsorTierId = 'tier1' | 'tier2' | 'tier3';
 export interface SponsorTier {
   id: SponsorTierId;
   label: string;
-  description: string;
+  /** Open box artwork for this tier (sponsors go on as stickers later). */
+  boxImage: string;
+  boxImageAlt: string;
 }
 
 export interface Sponsor {
@@ -237,7 +239,7 @@ export interface SiteContent {
   /** Chapter text waypoints shown while scrolling the collage */
   aboutChapters: AboutChapter[];
   competitionsIntro: string;
-  sponsorsIntro: string;
+  sponsorsIntro: string[];
   faqIntro: string;
   chairsIntro: string;
   teamIntro: string;

@@ -12,6 +12,7 @@
 html {
   scroll-behavior: smooth;
   scroll-padding-top: calc(var(--header-height) + 0.75rem);
+  overflow-x: clip;
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -31,19 +32,21 @@ body {
   background-color: var(--color-background);
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
+  overflow-x: clip;
+  overscroll-behavior-x: none;
 }
 
 #root {
   position: relative;
   min-height: 100%;
   isolation: isolate;
+  overflow-x: clip;
 }
 
-/* Compact / portrait — clip sideways overflow without nested scrollports */
+/* Compact / portrait — keep overscroll lock (overflow-x already clipped above) */
 @media (max-width: 1024px), (orientation: portrait) {
   html,
   body {
-    overflow-x: clip;
     overscroll-behavior-x: none;
   }
 }
