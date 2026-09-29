@@ -49,22 +49,22 @@
   filter: drop-shadow(0 6px 14px rgba(0, 0, 0, 0.45));
 }
 
-/* OUR — sits on the top-left of SPONSORS, slightly angled */
+/* OUR — above SPONSORS, centred, still angled */
 .sponsors__title-sticker--1 {
-  position: absolute;
-  left: -8%;
-  top: -44%;
+  position: relative;
   width: min(50%, 12.5rem);
   z-index: 2;
-  transform: rotate(-12deg);
+  margin: 0 auto -1rem;
+  transform: rotate(-12deg) translateY(0.7rem);
   transform-origin: center center;
 }
 
-/* SPONSORS */
+/* SPONSORS — centred under OUR */
 .sponsors__title-sticker--2 {
   position: relative;
-  width: min(100%, 26rem);
+  width: min(97%, 25rem);
   z-index: 1;
+  margin-inline: auto;
 }
 
 .sponsors__intro {
@@ -95,14 +95,13 @@
   }
 
   .sponsors__title-sticker--1 {
-    left: -10%;
-    top: -42%;
     width: min(52%, 10rem);
-    transform: rotate(-11deg);
+    margin: 0 auto -0.85rem;
+    transform: rotate(-11deg) translateY(0.55rem);
   }
 
   .sponsors__title-sticker--2 {
-    width: min(100%, 20rem);
+    width: min(97%, 19.25rem);
   }
 
   .sponsors__title-sticker {
@@ -112,6 +111,23 @@
   .sponsors__intro-text {
     font-size: clamp(1.05rem, 4vw, 1.28rem);
     line-height: 1.5;
+  }
+
+  .sponsors__stage {
+    /* Sit lower on portrait / narrow vertical screens */
+    transform: translateY(clamp(3rem, 8vw, 5rem));
+  }
+
+  .sponsors.section-container .section-container__inner {
+    padding-inline: clamp(0.1rem, 0.4vw, 0.35rem);
+  }
+
+  .sponsor-box {
+    width: 90%;
+  }
+
+  .sponsor-box--tier1 {
+    width: 94%;
   }
 }
 
