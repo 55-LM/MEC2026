@@ -5,6 +5,11 @@
   --grid-opacity: 0.08;
   --grid-size: 32px;
   --grid-line-thickness: 1.25px;
+  /* Bold lines every 5 cells (the big squares) */
+  --grid-major-opacity: 0.15;
+  --grid-major-thickness: 1.5px;
+  /* Faint dashed / arc construction lines */
+  --grid-guide-opacity: 0.13;
   --noise-opacity: 0.1;
   --noise-size: 180px;
 

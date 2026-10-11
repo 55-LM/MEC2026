@@ -1,6 +1,5 @@
-import { GridBackground } from '../components/layout/GridBackground';
+import { GridBackground, PageRulerSpacer } from '../components/layout/GridBackground';
 import { Header } from '../components/layout/Header';
-import { Footer } from '../components/layout/Footer';
 import { Hero } from '../components/sections/Hero/Hero';
 import { About } from '../components/sections/About/About';
 import { Competitions } from '../components/sections/Competitions/Competitions';
@@ -30,7 +29,7 @@ export default function App() {
         <Chairs />
         <Team />
       </main>
-      <Footer />
+      <PageRulerSpacer />
     </>
   );
 }

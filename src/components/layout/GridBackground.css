@@ -5,35 +5,60 @@
   pointer-events: none;
   background-color: var(--color-background);
   overflow: hidden;
-  will-change: auto;
 }
 
-@media (min-width: 1025px) and (orientation: landscape) {
-  .grid-background {
-    will-change: transform;
-  }
+/*
+  Set by About while its section is pinned: hold the grid to the viewport so it
+  stays still during the photo scrub, showing the page as it was at pin start.
+*/
+.grid-background--frozen {
+  position: fixed;
+}
+
+.grid-background--frozen .grid-background__pattern {
+  background-position: 0 calc(var(--grid-major-y, 0px) - var(--grid-freeze-start, 0px));
+}
+
+.grid-background--frozen .grid-background__noise {
+  background-position: 0 calc(-1 * var(--grid-freeze-start, 0px));
 }
 
 .grid-background__pattern {
   position: absolute;
   inset: 0;
+  /*
+    One 5×5-cell tile holds both the bold line and the four thin lines, so thin
+    and bold lines can't drift apart when Chrome rounds tile sizes at
+    non-integer display scales. --grid-major-y (set in JS) lines the bold rows
+    up with the left ruler's labels, which count up from the page bottom.
+  */
+  --grid-major: calc(var(--grid-size) * 5);
   background-image:
     linear-gradient(
       to right,
-      rgba(var(--color-grid), var(--grid-opacity)) var(--grid-line-thickness),
-      transparent var(--grid-line-thickness)
+      rgba(var(--color-grid), var(--grid-major-opacity)) var(--grid-major-thickness),
+      transparent var(--grid-major-thickness)
     ),
     linear-gradient(
       to bottom,
-      rgba(var(--color-grid), var(--grid-opacity)) var(--grid-line-thickness),
-      transparent var(--grid-line-thickness)
+      rgba(var(--color-grid), var(--grid-major-opacity)) var(--grid-major-thickness),
+      transparent var(--grid-major-thickness)
+    ),
+    repeating-linear-gradient(
+      to right,
+      rgba(var(--color-grid), var(--grid-opacity)) 0 var(--grid-line-thickness),
+      transparent var(--grid-line-thickness) var(--grid-size)
+    ),
+    repeating-linear-gradient(
+      to bottom,
+      rgba(var(--color-grid), var(--grid-opacity)) 0 var(--grid-line-thickness),
+      transparent var(--grid-line-thickness) var(--grid-size)
     );
-  background-size: var(--grid-size) var(--grid-size);
-  background-position: 0 0;
+  background-size: var(--grid-major) var(--grid-major);
+  background-position: 0 var(--grid-major-y, 0px);
   background-attachment: scroll;
 }
 
-/* Fine static grain — scrolls with the grid, does not animate */
 .grid-background__noise {
   position: absolute;
   inset: 0;
@@ -42,4 +67,171 @@
   background-size: var(--noise-size) var(--noise-size);
   background-repeat: repeat;
   mix-blend-mode: soft-light;
+}
+
+/* ------------------------------------------------------------------
+   Page rulers — engineering-paper edges on the left and bottom.
+   Ticks sit on grid lines; side labels count up from the bottom baseline.
+   ------------------------------------------------------------------ */
+.page-rulers {
+  --ruler-w: calc(var(--grid-size) * 2.5);
+  --ruler-tick: rgba(var(--color-grid), 0.11);
+  --ruler-major: rgba(var(--color-grid), 0.18);
+  --ruler-text: rgba(var(--color-grid), 0.3);
+  --ruler-line-w: var(--grid-line-thickness);
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+}
+
+/* Faint dashed curves + arcs, like construction lines on drafting paper */
+.page-guides {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  fill: none;
+  stroke: rgba(var(--color-grid), var(--grid-guide-opacity));
+  stroke-width: var(--grid-line-thickness);
+}
+
+.page-guides__arc {
+  stroke: rgba(var(--color-grid), calc(var(--grid-guide-opacity) * 0.6));
+}
+
+.page-guides__dash {
+  stroke-dasharray: 7 7;
+}
+
+/* Faint line down the left edge of the page where the side ticks start */
+.page-rulers::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: var(--ruler-line-w);
+  background: var(--ruler-tick);
+}
+
+/* While About is pinned the grid layer is viewport-fixed; hold rulers where they were */
+.grid-background--frozen .page-rulers {
+  transform: translateY(calc(-1 * var(--grid-freeze-start, 0px)));
+}
+
+.page-ruler__label {
+  position: absolute;
+  font-family: ui-monospace, 'SFMono-Regular', Menlo, Consolas, monospace;
+  font-size: 11px;
+  line-height: 1;
+  letter-spacing: 0.04em;
+  color: var(--ruler-text);
+  white-space: nowrap;
+  user-select: none;
+}
+
+/*
+  Major (every 5 cells) ticks hang off their label at an exact pixel position.
+  A 5-cell repeating background drifts off the 1-cell grid in Chrome at
+  non-integer display scales, so only the 1-cell minor ticks use a background.
+*/
+.page-ruler__label::before {
+  content: '';
+  position: absolute;
+  background: var(--ruler-major);
+}
+
+/* Side rulers run from the top of the page down to the bottom baseline */
+.page-ruler--side {
+  position: absolute;
+  top: 0;
+  width: var(--ruler-w);
+  height: var(--ruler-base-y);
+  --ruler-major-len: calc(var(--grid-size) * 0.5);
+  --ruler-label-gap: calc(var(--grid-size) * 0.62);
+  /* 5-cell tile, same as the grid pattern, so ticks stay on the grid lines */
+  background-image: repeating-linear-gradient(
+    to bottom,
+    var(--ruler-tick) 0 var(--ruler-line-w),
+    transparent var(--ruler-line-w) var(--grid-size)
+  );
+  background-size: calc(var(--grid-size) * 0.34) calc(var(--grid-size) * 5);
+  background-repeat: repeat-y;
+}
+
+/* Left: ticks start at the screen edge, labels sit to their right */
+.page-ruler--left {
+  left: 0;
+  background-position: left 0 top var(--grid-major-y, 0px);
+}
+
+.page-ruler--left .page-ruler__label {
+  left: var(--ruler-label-gap);
+  transform: translateY(-50%);
+  /* Mask the bold horizontal grid line so the number sits on top of it */
+  padding: 1px 3px;
+  background: var(--color-background);
+}
+
+/* Starts at the screen edge; top edge on the label's centre = the grid line */
+.page-ruler--left .page-ruler__label::before {
+  top: 50%;
+  left: calc(-1 * var(--ruler-label-gap));
+  width: var(--ruler-major-len);
+  height: var(--ruler-line-w);
+}
+
+/* Bottom: mirrors the left ruler — ticks rise from the page bottom, labels above */
+.page-ruler--bottom {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: calc(var(--grid-size) * 2);
+  /* Faint line along the page bottom where the ticks start */
+  border-bottom: var(--ruler-line-w) solid var(--ruler-tick);
+  box-sizing: border-box;
+  --ruler-major-len: calc(var(--grid-size) * 0.68);
+  --ruler-label-gap: calc(var(--grid-size) * 0.86);
+  background-image: repeating-linear-gradient(
+    to right,
+    var(--ruler-tick) 0 var(--ruler-line-w),
+    transparent var(--ruler-line-w) var(--grid-size)
+  );
+  background-size: calc(var(--grid-size) * 5) calc(var(--grid-size) * 0.34);
+  background-position: left 0 bottom 0;
+  background-repeat: repeat-x;
+}
+
+.page-ruler--bottom .page-ruler__label {
+  bottom: var(--ruler-label-gap);
+  transform: translateX(-50%);
+  /* Mask the bold vertical grid line so the number sits on top of it */
+  padding: 1px 3px;
+  background: var(--color-background);
+}
+
+/* Rises from the page bottom; left edge on the label's centre = the grid line */
+.page-ruler--bottom .page-ruler__label::before {
+  left: 50%;
+  top: calc(100% + var(--ruler-label-gap) - var(--ruler-major-len));
+  width: var(--ruler-line-w);
+  height: var(--ruler-major-len);
+}
+
+/* Room at the end of the page for the bottom ruler (replaces the old footer) */
+.page-ruler-spacer {
+  height: calc(var(--grid-size) * 3);
+}
+
+@media (max-width: 768px) {
+  .page-rulers {
+    --ruler-w: calc(var(--grid-size) * 2);
+  }
+
+  .page-ruler__label {
+    font-size: 9px;
+  }
 }

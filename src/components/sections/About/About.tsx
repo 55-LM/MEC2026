@@ -240,14 +240,28 @@ export function About() {
         return Math.max(padLeft + contentW - clip, 0);
       };
 
+      /* Page grid cell size in px (from --grid-size on the shared grid layer). */
+      const getGridSize = () =>
+        parseFloat(
+          getComputedStyle(document.documentElement).getPropertyValue('--grid-size'),
+        ) || 0;
+
+      /* Whole 5-cell blocks, so the bold grid lines don't jump when the pin releases */
+      const snapToGrid = (px: number) => {
+        const block = getGridSize() * 5;
+        return block > 0 ? Math.max(Math.round(px / block), 1) * block : px;
+      };
+
       /* Shared travel so pin end and x-transform stay locked together. */
       let compactPin = 0;
       const refreshCompactTravel = () => {
         const travel = getTravel(row1);
         /*
           Shorter pin on mobile — long scrub + dozens of images is the main jank source.
+          Rounded to whole grid cells so the frozen grid lines up with the
+          scrolling page grid again once the pin releases.
         */
-        compactPin = Math.min(travel, window.innerHeight * 2.75);
+        compactPin = snapToGrid(Math.min(travel, window.innerHeight * 2.75));
         return compactPin;
       };
       if (compact) refreshCompactTravel();
@@ -322,14 +336,20 @@ export function About() {
       applyProgress(0);
 
       const grid = document.querySelector<HTMLElement>('.grid-background');
+      /*
+        While pinned, switch the page grid to position: fixed so the browser holds
+        it still on the compositor (no per-frame JS, so no lag with threaded /
+        momentum scrolling, and it covers the full dynamic viewport on iOS).
+        Shows the grid as it sat at pin start; pin lengths are whole 5-cell
+        blocks, so it also lines up when released at either end.
+      */
       const freezeGrid = (self: ScrollTrigger) => {
-        /* Skip on compact — moving the full-page grid every scroll tick is very costly. */
-        if (!grid || compact) return;
-        gsap.set(grid, { y: self.scroll() - self.start });
+        if (!grid) return;
+        grid.style.setProperty('--grid-freeze-start', `${self.start}px`);
+        grid.classList.add('grid-background--frozen');
       };
       const releaseGrid = () => {
-        if (!grid) return;
-        gsap.set(grid, { y: 0 });
+        grid?.classList.remove('grid-background--frozen');
       };
 
       ScrollTrigger.create({
@@ -343,7 +363,7 @@ export function About() {
           if (compact) {
             return `+=${Math.max(refreshCompactTravel(), 1)}`;
           }
-          return `+=${Math.max(travel, window.innerHeight) * 1.2}`;
+          return `+=${snapToGrid(Math.max(travel, window.innerHeight) * 1.2)}`;
         },
         pin: true,
         /* Compact: 1:1 scrub (smoothed scrub feels laggy/glitchy on mobile) */
@@ -352,7 +372,10 @@ export function About() {
         invalidateOnRefresh: true,
         onUpdate: (self) => {
           applyProgress(self.progress);
-          freezeGrid(self);
+        },
+        onToggle: (self) => {
+          if (self.isActive) freezeGrid(self);
+          else releaseGrid();
         },
         onRefresh: (self) => {
           if (compact) refreshCompactTravel();
@@ -391,7 +414,7 @@ export function About() {
         img.removeEventListener('error', onImg);
       });
       const grid = document.querySelector<HTMLElement>('.grid-background');
-      if (grid) gsap.set(grid, { y: 0 });
+      grid?.classList.remove('grid-background--frozen');
       ctx.revert();
     };
   }, [reduced, aboutChapters.length, compact, row1Album]);

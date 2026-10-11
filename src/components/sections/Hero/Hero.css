@@ -670,18 +670,45 @@
     padding-bottom: 1.5rem;
   }
 
-  /* Short landscape: stage follows the short hero, not a full viewport */
+  /*
+    Short landscape (phones turned sideways): the compact/portrait rules above
+    also match here (max-width: 1024px) and would hang a 145vw top gear that
+    covers the whole screen. Instead, mirror the portrait look sideways: a big
+    gear centred on the left edge so only its right half shows, vertically
+    centred on MET / ENG / COMP.
+  */
+  .hero {
+    /* Scaled title height (matches .hero__title height × title scale-y below) */
+    --hero-land-title-h: calc(clamp(14rem, 58vh, 24rem) * 0.76);
+    /*
+      Gear box size. The art fills ~70% of the box height and ~68% of its width
+      (transparent padding), so 1.9 × 100svh gives a gear a bit taller than the screen.
+    */
+    --hero-land-gear: calc(100svh * 1.9);
+  }
+
   .hero__gear-stage {
+    width: 100%;
     height: 100%;
+    overflow-x: clip;
+    overflow-y: visible;
   }
 
-  /* Scale only — keep locked left / top / translate */
   .hero__gear {
-    height: 100%;
+    /* Art is centred in its box, so -50% puts the gear's centre on the edge */
+    left: var(--safe-left);
+    /* Header + hero padding + title-block padding, then half the title */
+    top: calc(
+      var(--header-height) + var(--safe-top) + 2.1rem + var(--hero-land-title-h) / 2
+    );
+    width: auto;
+    height: var(--hero-land-gear);
+    transform: translate(-50%, -50%);
   }
 
+  /* Clear the visible half of the gear art (~34% of the box), then centre the title */
   .hero__inner {
-    padding-left: clamp(5rem, 36svh, 14rem);
+    padding-left: calc(var(--safe-left) + var(--hero-land-gear) * 0.34 + 1rem);
   }
 
   .hero__meta {
