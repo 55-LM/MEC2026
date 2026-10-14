@@ -1,5 +1,8 @@
 # Metropolitan Engineering Competition (MEC) Website
 
+![MEC website homepage](docs/demo.gif)
+
+
 Marketing site for the Metropolitan Engineering Competition — a two-day engineering event with nine competition streams. Built as a static frontend for easy deployment and frequent content updates.
 
 ## Technology stack
