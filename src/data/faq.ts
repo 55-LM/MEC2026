@@ -31,7 +31,7 @@ export const faqItems: FaqItem[] = [
     id: 'faq-what-is-mec',
     question: 'What is the Metropolitan Engineering Competition?',
     answer:
-      'MEC is TMU’s annual, two-day engineering competition run by MUES where 350+ students tackle real engineering challenges across nine categories, with judging, networking, and an awards ceremony.',
+      'MEC is TMU’s annual, two-day engineering competition run by MUES where 400+ students tackle real engineering challenges across nine categories, with judging, networking, and an awards ceremony.',
   },
   {
     id: 'faq-who-can-participate',
