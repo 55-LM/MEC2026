@@ -221,11 +221,6 @@
   height: var(--ruler-major-len);
 }
 
-/* Room at the end of the page for the bottom ruler (replaces the old footer) */
-.page-ruler-spacer {
-  height: calc(var(--grid-size) * 3);
-}
-
 @media (max-width: 768px) {
   .page-rulers {
     --ruler-w: calc(var(--grid-size) * 2);

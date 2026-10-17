@@ -1,177 +1,332 @@
-.team__layout {
-  display: grid;
-  gap: 1.5rem;
-  align-items: start;
-}
-
-.team__carousel-wrap {
-  justify-self: stretch;
-  width: 100%;
-  max-width: 36rem;
-  margin-inline: auto;
-}
-
-.team-carousel {
-  display: grid;
-  gap: 1rem;
-}
-
-.team-carousel__stage {
+/*
+  Meet the Team — ends the page. Heading, gear row and building share one
+  grid cell ("stage") so the heading sits over the gear row and the
+  building stays flush with the bottom-right corner. The cell grows to fit
+  whichever is taller. The building width drives every other size.
+*/
+.team {
+  --team-building-w: min(62vw, 100svh, 75rem);
+  /* Building asset ratio is 1.3043 : 1 (1600 × 1227) */
+  --team-building-h: calc(var(--team-building-w) / 1.3043);
+  --team-gear-size: max(4rem, calc(var(--team-building-w) * 0.142));
+  --team-gear-gap: calc(var(--team-gear-size) * 0.5);
+  /* Centre of the gear row, measured up from the page bottom */
+  --team-row-y: calc(var(--team-building-h) * 0.41);
+  /* Heading: just above the roofline, then one big grid square (5 cells) lower */
+  --team-title-nudge: clamp(0.75rem, 2.5vw, 2.25rem);
+  --team-title-drop: calc(var(--grid-size) * 5);
+  /* Inner width of the heading (the area left of the building) */
+  --team-title-space: calc(100vw - var(--team-building-w) * 0.75 - var(--container-padding) * 2);
+  --team-title-row-w: min(30rem, var(--team-title-space));
+  /* Shrinks on narrow screens so the longest "Name, Role" (~25em) stays on one line */
+  --team-caption-size: max(0.75rem, min(clamp(0.95rem, 1.4vw, 1.1rem), var(--team-title-space) / 25));
+  --team-caption-gap: clamp(0.75rem, 1.6vw, 1.1rem);
+  /* Caption lines to leave room for (2 where long names can wrap) */
+  --team-caption-lines: 1;
+  /* Lowest the heading may start so its caption still clears the gears (sticker row is 0.1162 × its width tall) */
+  --team-title-max-top: calc(
+    var(--team-building-h) - var(--team-row-y) - var(--team-gear-size) / 2
+      - var(--team-title-row-w) * 0.1162 - var(--team-caption-gap)
+      - var(--team-caption-size) * 1.45 * var(--team-caption-lines) - 1rem
+  );
   position: relative;
-  width: 100%;
-  aspect-ratio: 1 / 1;
-  max-height: min(34rem, 70svh);
-  min-height: 16rem;
-  outline: none;
-}
-
-.team-carousel__stage.is-compact {
-  max-height: min(24rem, 62svh);
-  min-height: 14rem;
-}
-
-.team-carousel__orbit {
-  position: absolute;
-  inset: 0;
+  z-index: 1;
   display: grid;
-  place-items: center;
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-areas: 'stage';
+  padding-top: var(--section-padding-y);
+  overflow: clip;
 }
 
-.team-carousel__item {
-  position: absolute;
-  left: 50%;
-  top: 50%;
-  margin-left: 0;
-  margin-top: 0;
-  translate: -50% -50%;
-  will-change: transform;
-}
-
-.team-carousel__polaroid {
-  width: 100%;
-  display: block;
-}
-
-.team-carousel__polaroid .polaroid__frame {
-  padding: 0.45rem 0.45rem 1.1rem;
-}
-
-.team-carousel__tooltip {
-  position: absolute;
-  left: 50%;
-  bottom: calc(100% + 0.4rem);
-  transform: translateX(-50%);
-  min-width: 7rem;
-  padding: 0.4rem 0.55rem;
-  border-radius: var(--radius-sm);
-  background: rgba(12, 12, 12, 0.92);
-  border: 1px solid var(--color-border);
+/*
+  Centred over the part of the row left of the building, one big grid
+  square below the roofline. Screens too short for the full square get as
+  much of it as fits without the caption touching the gears.
+*/
+.team__title {
+  grid-area: stage;
+  align-self: start;
+  justify-self: start;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: calc(100% - var(--team-building-w) * 0.75);
+  margin-top: max(
+    -1 * var(--team-title-nudge),
+    min(var(--team-title-drop) - var(--team-title-nudge), var(--team-title-max-top))
+  );
+  padding-inline: var(--container-padding);
   text-align: center;
-  pointer-events: none;
 }
 
-.team-carousel__tooltip-name {
-  margin: 0;
-  font-family: var(--font-display);
-  font-size: 0.8rem;
-  font-weight: 600;
+.team__title-sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
 }
 
-.team-carousel__tooltip-role {
-  margin: 0.15rem 0 0;
-  font-size: 0.72rem;
-  color: var(--color-text-muted);
-}
-
-.team-carousel__controls {
+/*
+  MEET · THE · TEAM in one row. Widths and the negative margins that trim
+  each asset's transparent edge are % of this row (1076 units = the three
+  sticker bodies plus two small gaps), so the row scales as one piece.
+*/
+.team__title-stickers {
   display: flex;
   align-items: center;
-  justify-content: center;
-  gap: 0.75rem;
+  width: min(100%, 30rem);
 }
 
-.team-carousel__nav {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 2.5rem;
-  height: 2.5rem;
-  border-radius: 999px;
-  border: 1px solid var(--color-border);
-  background: var(--color-surface);
-  color: var(--color-text);
-  cursor: pointer;
+.team__title-sticker {
+  position: relative;
+  flex: none;
+  display: block;
+  height: auto;
+  max-width: none;
+  margin-block: -7.43% -7.53%;
+  user-select: none;
+  pointer-events: none;
+  filter: drop-shadow(0 6px 14px rgba(0, 0, 0, 0.45));
 }
 
-.team-carousel__nav:hover,
-.team-carousel__nav:focus-visible {
-  border-color: var(--color-accent);
-  color: var(--color-accent);
+/* MEET */
+.team__title-sticker--1 {
+  width: 49.35%;
+  margin-left: -7.43%;
+  z-index: 1;
+  transform: rotate(-4deg);
 }
 
-.team-carousel__caption {
-  min-width: 10rem;
-  text-align: center;
+/* THE */
+.team__title-sticker--2 {
+  width: 41.64%;
+  margin-left: -13.2%;
+  z-index: 2;
+  transform: rotate(3deg) translateY(-4%);
 }
 
-.team-carousel__caption-name {
-  margin: 0;
-  font-family: var(--font-display);
-  font-weight: 700;
+/* TEAM */
+.team__title-sticker--3 {
+  width: 50.46%;
+  margin-left: -13.2%;
+  margin-right: -7.62%;
+  z-index: 3;
+  transform: rotate(-3deg);
 }
 
-.team-carousel__caption-role {
-  margin: 0.2rem 0 0;
-  font-size: var(--text-small);
+/* "Name, Role" of the hovered gear; empty (but holding its height) otherwise */
+.team__caption {
+  margin: var(--team-caption-gap) 0 0;
+  min-height: 1.45em;
+  font-family: var(--font-body);
+  font-size: var(--team-caption-size);
+  line-height: 1.45;
+  color: var(--color-secondary);
 }
 
-.team-member-card {
-  display: grid;
-  gap: 0.5rem;
-  justify-items: center;
-}
-
-.team-member-card__name {
-  margin: 0;
-  font-family: var(--font-display);
+.team__caption-name {
   font-weight: 600;
-  font-size: var(--text-small);
+  color: var(--color-primary);
 }
 
-.team-member-card__role {
+/* Full-width strip; clip (not hidden) so focus can't scroll it sideways */
+.team-gears {
+  grid-area: stage;
+  align-self: end;
+  z-index: 1;
+  min-width: 0;
+  margin-bottom: calc(var(--team-row-y) - var(--team-gear-size) / 2 - 0.5rem);
+  padding-block: 0.5rem;
+  overflow: clip;
+}
+
+/* Two identical sets; sliding by -50% lands exactly on the start again */
+.team-gears__track {
+  position: relative;
+  display: flex;
+  width: max-content;
+  animation: team-gears-roll var(--team-gear-loop, 100s) linear infinite;
+}
+
+.team-gears__track.is-paused {
+  animation-play-state: paused;
+}
+
+@keyframes team-gears-roll {
+  from {
+    transform: translateX(0);
+  }
+
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+.team-gears__set {
+  display: flex;
   margin: 0;
-  font-size: 0.75rem;
-  color: var(--color-text-muted);
+  padding: 0;
+  list-style: none;
 }
 
-@media (min-width: 960px) {
-  .team__layout {
-    grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
-    align-items: end;
-    gap: 2rem;
-    min-height: 28rem;
+.team-gear {
+  position: relative;
+  flex: none;
+  width: var(--team-gear-size);
+  height: var(--team-gear-size);
+  margin-right: var(--team-gear-gap);
+}
+
+.team-gear__button {
+  display: block;
+  width: 100%;
+  height: 100%;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: none;
+  cursor: default;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.team-gear__button img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  user-select: none;
+  filter: drop-shadow(0 6px 12px rgba(0, 0, 0, 0.5));
+  transition: transform var(--duration-fast) var(--ease-out);
+}
+
+.team-gear.is-active .team-gear__button img {
+  transform: scale(1.06);
+}
+
+.team__building {
+  grid-area: stage;
+  align-self: end;
+  justify-self: end;
+  z-index: 3;
+  width: var(--team-building-w);
+  max-width: none;
+  height: auto;
+  pointer-events: none;
+  user-select: none;
+}
+
+/* Traces the building's roofline so only the facade blocks the gears */
+.team__building-hit {
+  grid-area: stage;
+  align-self: end;
+  justify-self: end;
+  z-index: 4;
+  width: var(--team-building-w);
+  aspect-ratio: 1200 / 920;
+  clip-path: polygon(
+    1% 100%,
+    1% 79%,
+    5% 74%,
+    10% 70%,
+    15% 66%,
+    20% 63%,
+    22.5% 60%,
+    25% 57%,
+    30% 53%,
+    35% 49%,
+    40% 44.5%,
+    45% 39.5%,
+    47.5% 37%,
+    50% 31.5%,
+    55% 26.5%,
+    60% 21.8%,
+    65% 17.2%,
+    70% 12.4%,
+    75% 7.6%,
+    80% 5.5%,
+    85% 7.7%,
+    87.5% 7.8%,
+    92.5% 4.5%,
+    97.5% 2%,
+    100% 2.5%,
+    100% 100%
+  );
+}
+
+@media (max-width: 1024px), (orientation: portrait) {
+  .team {
+    --team-title-row-w: min(22rem, var(--team-title-space));
   }
 
-  .team__intro {
-    align-self: start;
-    padding-top: 1rem;
+  .team__title-stickers {
+    width: min(100%, 22rem);
   }
 
-  .team__carousel-wrap {
-    justify-self: end;
-    margin-inline: 0;
-    max-width: 34rem;
+  .team__title-sticker {
+    filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.4));
   }
 }
 
+/* Phones (portrait): heading moves above the stage, smaller building */
+@media (max-width: 640px) and (orientation: portrait) {
+  .team {
+    --team-building-w: 66vw;
+    --team-gear-size: 3.5rem;
+    --team-row-y: calc(var(--team-building-h) * 0.56);
+    /* Heading spans the full width above the building here */
+    --team-title-space: calc(100vw - var(--container-padding) * 2);
+    grid-template-areas:
+      'title'
+      'stage';
+  }
+
+  .team__title {
+    grid-area: title;
+    justify-self: stretch;
+    width: auto;
+    margin-top: 0;
+    margin-bottom: 0.5rem;
+  }
+
+  /* Long names may wrap to two lines */
+  .team__caption {
+    min-height: 2.9em;
+  }
+}
+
+/* Short landscape phones: long names can wrap, keep room for two lines */
 @media (max-height: 500px) and (orientation: landscape) {
-  .team-carousel__stage {
-    aspect-ratio: 16 / 10;
-    max-height: 55svh;
-    min-height: 12rem;
+  .team {
+    --team-caption-lines: 2;
   }
 
-  .team__layout {
-    min-height: 0;
+  .team__caption {
+    min-height: 2.9em;
+  }
+}
+
+/* No rolling: one static row people can swipe / scroll through instead */
+@media (prefers-reduced-motion: reduce) {
+  .team-gears__track {
+    animation: none;
+  }
+
+  .team-gears {
+    overflow-x: auto;
+    overflow-y: hidden;
+    scrollbar-width: none;
+  }
+
+  .team-gears::-webkit-scrollbar {
+    display: none;
+  }
+
+  .team-gear__button img {
+    transition: none;
   }
 }

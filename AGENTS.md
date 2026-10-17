@@ -18,7 +18,7 @@ Content and design change frequently. Prefer **surgical, section-scoped edits**.
 | Sponsors | `src/components/sections/Sponsors/*` + `src/data/sponsors.ts` |
 | FAQ | `src/components/sections/FAQ/*` + `src/data/faq.ts` |
 | Chairs / form | `src/components/sections/Chairs/*` + `src/data/chairs.ts` + `src/services/formSubmission.ts` |
-| Team carousel | `src/components/sections/Team/*` + `src/data/team.ts` |
+| Meet the Team (gear carousel + building, ends the page) | `src/components/sections/Team/*` + `src/data/team.ts` |
 | Types | `src/types/index.ts` |
 
 ## Mandatory workflow

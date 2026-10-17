@@ -242,7 +242,6 @@ export interface SiteContent {
   sponsorsIntro: string[];
   faqIntro: string;
   chairsIntro: string;
-  teamIntro: string;
   footer: FooterContent;
   socialLinks: SocialLink[];
 }

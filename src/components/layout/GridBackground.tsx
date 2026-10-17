@@ -195,8 +195,3 @@ export function GridBackground() {
     </div>
   );
 }
-
-/** Empty space at the end of the page for the bottom ruler. */
-export function PageRulerSpacer() {
-  return <div className="page-ruler-spacer" aria-hidden="true" />;
-}

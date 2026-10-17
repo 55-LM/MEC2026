@@ -242,14 +242,10 @@ export const siteContent: SiteContent = {
     'Partnering with MEC gives your company valuable exposure to 500+ attendees with proven design skills who are ready to make an impact at your organization.',
   ],
 
-  faqIntro:
-    'Answers to common participant questions. Official policies will replace these examples when confirmed.',
+  faqIntro: 'Answers to common questions about competing at MEC.',
 
   chairsIntro:
     'Meet the event chairs leading MEC. Have a question? Send it through the form below.',
-
-  teamIntro:
-    'The organizing committee behind MEC — students building an experience for students.',
 
   footer: {
     description:

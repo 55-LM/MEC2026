@@ -1,7 +1,107 @@
+.faq__title {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  margin: 0 0 clamp(1.75rem, 4vw, 2.75rem);
+  text-align: center;
+}
+
+.faq__title-sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/*
+  Sticker widths and overlaps are % of this box (margin % resolves against
+  its width), so the stack keeps the same shape at every size.
+  Widths follow each asset's pixel width so the letters match in size.
+*/
+.faq__title-stickers {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: min(100%, 32rem);
+  margin-inline: auto;
+}
+
+.faq__title-sticker {
+  position: relative;
+  display: block;
+  height: auto;
+  max-width: none;
+  object-fit: contain;
+  user-select: none;
+  pointer-events: none;
+  filter: drop-shadow(0 6px 14px rgba(0, 0, 0, 0.45));
+}
+
+/* FREQUENTLY */
+.faq__title-sticker--1 {
+  width: 92%;
+  z-index: 1;
+  transform: translateX(-4%) rotate(-4deg);
+}
+
+/* ASKED — tucked under FREQUENTLY, nudged right */
+.faq__title-sticker--2 {
+  width: 59.5%;
+  z-index: 3;
+  margin-top: -17.6%;
+  transform: translateX(16%) rotate(5deg);
+}
+
+/* QUESTIONS — negative bottom margin trims the asset's transparent edge */
+.faq__title-sticker--3 {
+  width: 85.4%;
+  z-index: 2;
+  margin-top: -17.4%;
+  margin-bottom: -6%;
+  transform: translateX(-2%) rotate(-2deg);
+}
+
+.faq__intro {
+  margin: clamp(0.75rem, 2vw, 1.25rem) 0 0;
+  max-width: min(36rem, 100%);
+  padding-inline: 0.5rem;
+  font-family: var(--font-body);
+  font-size: clamp(0.92rem, 1.7vw, 1.1rem);
+  font-weight: 400;
+  line-height: 1.45;
+  text-align: center;
+  color: var(--color-secondary);
+}
+
 .faq__list {
   max-width: 48rem;
+  margin-inline: auto;
 }
 
 .faq__list p {
   margin: 0;
+}
+
+@media (max-width: 1024px), (orientation: portrait) {
+  .faq__title-stickers {
+    width: min(100%, 23rem);
+  }
+
+  .faq__title-sticker {
+    filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.4));
+  }
+
+  .faq__intro {
+    font-size: clamp(1.05rem, 4vw, 1.28rem);
+    line-height: 1.5;
+  }
 }

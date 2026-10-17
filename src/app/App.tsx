@@ -1,4 +1,4 @@
-import { GridBackground, PageRulerSpacer } from '../components/layout/GridBackground';
+import { GridBackground } from '../components/layout/GridBackground';
 import { Header } from '../components/layout/Header';
 import { Hero } from '../components/sections/Hero/Hero';
 import { About } from '../components/sections/About/About';
@@ -29,7 +29,6 @@ export default function App() {
         <Chairs />
         <Team />
       </main>
-      <PageRulerSpacer />
     </>
   );
 }

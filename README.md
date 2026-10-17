@@ -61,7 +61,7 @@ Each major section is modular: its own folder, CSS, and data source. Update cont
 4. **Sponsors** — three tier “boxes” with sticker-style logos  
 5. **FAQ** — accessible accordion (single-open by default)  
 6. **Chairs** — two chair profiles + participant question form  
-7. **Meet the Team** — circular Polaroid carousel  
+7. **Meet the Team** — coordinator gears roll out from behind the George Vari building at the bottom of the page; hover / tap / focus shows “Name, Role” under the heading  
 
 ## Global black grid background
 
@@ -124,7 +124,7 @@ Edit `src/data/chairs.ts`. Images in `public/images/chairs/`.
 
 ### Team carousel
 
-Edit `src/data/team.ts`. Add/remove members — the carousel recalculates the orbit. Behaviour/sizing lives in `TeamCarousel.tsx` + `Team.css`.
+Edit `teamMembers` in `src/data/team.ts` (scroll order). Gear photos live in `public/images/team/gears/` as `first-last.webp` (320×320). Behaviour lives in `TeamGears.tsx`, sizing in `Team.css`.
 
 ## Configuring the participant question form
 
