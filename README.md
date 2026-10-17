@@ -162,17 +162,3 @@ Deploy the `dist/` folder. Set `VITE_FORMSPREE_ENDPOINT` in the host’s environ
 
 For GitHub Pages with a project path, set Vite `base` in `vite.config.ts`.
 
-## How to Request Future Design Changes in Cursor
-
-Ask for **one section at a time** and name the section. Agents should follow `AGENTS.md` and avoid unrelated rewrites.
-
-Example prompts:
-
-- “Update the Hero supporting statement and accent button colour only.”
-- “In About, replace the three Polaroid images and tighten mobile gallery spacing.”
-- “Rename competition placeholders in `competitions.ts` and enable rules PDFs.”
-- “Restyle the Sponsors tier-1 box; leave Competitions and FAQ alone.”
-- “Make the Team carousel orbit smaller on tablet portrait.”
-- “Do not change the black grid — only increase FAQ item padding.”
-
-Avoid: “Redesign the whole site” when you only need a section tweak.
