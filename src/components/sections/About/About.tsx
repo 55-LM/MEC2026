@@ -388,15 +388,27 @@ export function About() {
       });
     }, section);
 
-    const refresh = () => ScrollTrigger.refresh();
+    /*
+      `refresh(true)` waits until any in-progress scroll ends. A plain refresh
+      briefly resets the scroll position, which cancels smooth scrolls
+      (e.g. header nav jumps) partway through this pinned section.
+    */
+    const refresh = () => ScrollTrigger.refresh(true);
     const raf = window.requestAnimationFrame(refresh);
     const timer = window.setTimeout(refresh, 500);
     const timer2 = window.setTimeout(refresh, 1500);
     window.addEventListener('load', refresh);
 
-    /* Recalc travel once polaroids finish decoding (scrollWidth grows). */
+    /*
+      Recalc travel once polaroids finish loading. Lazy images load one by one
+      as the strip scrolls past, so coalesce them into a single refresh.
+    */
     const imgs = row1.querySelectorAll('img');
-    const onImg = () => refresh();
+    let imgTimer = 0;
+    const onImg = () => {
+      window.clearTimeout(imgTimer);
+      imgTimer = window.setTimeout(refresh, 200);
+    };
     imgs.forEach((img) => {
       if (!img.complete) {
         img.addEventListener('load', onImg);
@@ -408,6 +420,7 @@ export function About() {
       window.cancelAnimationFrame(raf);
       window.clearTimeout(timer);
       window.clearTimeout(timer2);
+      window.clearTimeout(imgTimer);
       window.removeEventListener('load', refresh);
       imgs.forEach((img) => {
         img.removeEventListener('load', onImg);

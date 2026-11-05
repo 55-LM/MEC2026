@@ -24,18 +24,24 @@ export const sponsorTiers: SponsorTier[] = [
     label: 'Principle Partners',
     boxImage: '/images/sponsors/PrinciplePartnerBox.webp',
     boxImageAlt: 'Principle Partners open box',
+    boxImageWidth: 1394,
+    boxImageHeight: 1296,
   },
   {
     id: 'tier2',
     label: 'Impact Partners',
     boxImage: '/images/sponsors/ImpactPartnerBox.webp',
     boxImageAlt: 'Impact Partners open box',
+    boxImageWidth: 1258,
+    boxImageHeight: 1095,
   },
   {
     id: 'tier3',
     label: 'Network Partners',
     boxImage: '/images/sponsors/NetworkPartnerBox.webp',
     boxImageAlt: 'Network Partners open box',
+    boxImageWidth: 1258,
+    boxImageHeight: 1095,
   },
 ];
 

@@ -16,6 +16,8 @@ export function SponsorTierBox({ tier, align = 'left' }: SponsorTierProps) {
         className="sponsor-box__image"
         src={tier.boxImage}
         alt={tier.boxImageAlt}
+        width={tier.boxImageWidth}
+        height={tier.boxImageHeight}
         loading="lazy"
         decoding="async"
       />

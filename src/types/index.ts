@@ -183,6 +183,12 @@ export interface SponsorTier {
   /** Open box artwork for this tier (sponsors go on as stickers later). */
   boxImage: string;
   boxImageAlt: string;
+  /**
+   * Native pixel size of `boxImage`. Reserves the box's space before the lazy
+   * image loads, so sections below don't shift (and nav jumps land correctly).
+   */
+  boxImageWidth: number;
+  boxImageHeight: number;
 }
 
 export interface Sponsor {
