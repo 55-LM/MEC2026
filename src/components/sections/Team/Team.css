@@ -17,7 +17,7 @@
   --team-title-drop: calc(var(--grid-size) * 5);
   /* Inner width of the heading (the area left of the building) */
   --team-title-space: calc(100vw - var(--team-building-w) * 0.75 - var(--container-padding) * 2);
-  --team-title-row-w: min(30rem, var(--team-title-space));
+  --team-title-row-w: min(37.5rem, var(--team-title-space));
   /* Shrinks on narrow screens so the longest "Name, Role" (~25em) stays on one line */
   --team-caption-size: max(0.75rem, min(clamp(0.95rem, 1.4vw, 1.1rem), var(--team-title-space) / 25));
   --team-caption-gap: clamp(0.75rem, 1.6vw, 1.1rem);
@@ -58,6 +58,8 @@
   );
   padding-inline: var(--container-padding);
   text-align: center;
+  /* Set in Team.tsx: centres the heading in a big grid square */
+  translate: 0 var(--team-title-snap, 0px);
 }
 
 .team__title-sr {
@@ -80,7 +82,7 @@
 .team__title-stickers {
   display: flex;
   align-items: center;
-  width: min(100%, 30rem);
+  width: min(100%, 37.5rem);
 }
 
 .team__title-sticker {
@@ -260,11 +262,11 @@
 
 @media (max-width: 1024px), (orientation: portrait) {
   .team {
-    --team-title-row-w: min(22rem, var(--team-title-space));
+    --team-title-row-w: min(27.5rem, var(--team-title-space));
   }
 
   .team__title-stickers {
-    width: min(100%, 22rem);
+    width: min(100%, 27.5rem);
   }
 
   .team__title-sticker {
