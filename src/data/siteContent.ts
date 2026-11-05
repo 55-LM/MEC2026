@@ -257,7 +257,7 @@ export const siteContent: SiteContent = {
     {
       id: 'instagram',
       label: 'Instagram',
-      href: '',
+      href: 'https://www.instagram.com/metengcomp',
       icon: 'instagram',
     },
     {
