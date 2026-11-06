@@ -9,6 +9,11 @@ export interface AboutMarqueePhoto {
 
 export const aboutDay1Photos: AboutMarqueePhoto[] = [
   {
+    id: 'day1-wide-neck',
+    src: '/images/about/wide-neck.jpg',
+    alt: 'MEC Day 1 moment',
+  },
+  {
     id: 'day1-MEC2025_Day1-5of111',
     src: '/images/about/Day_1/MEC2025_Day1(5of111).webp',
     alt: 'MEC Day 1 moment',
