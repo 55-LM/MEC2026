@@ -187,7 +187,7 @@ export const siteContent: SiteContent = {
         rotation: -6,
         accentColor: '#38bdf8',
         underlineStyle: 'wave',
-        href: '',
+        href: 'https://judges.metengcomp.mues.ca/board',
       },
     ],
   },
