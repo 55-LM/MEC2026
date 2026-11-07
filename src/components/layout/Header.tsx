@@ -1,4 +1,4 @@
-import { useEffect, useId, useState } from 'react';
+import { useEffect, useId, useLayoutEffect, useRef, useState, type RefObject } from 'react';
 import { Menu, X } from 'lucide-react';
 import { siteContent } from '../../data/siteContent';
 import './Header.css';
@@ -87,10 +87,96 @@ function SocialList({
   );
 }
 
+/*
+  The hero gear (wide landscape layout) spins in the top-left corner. The header row
+  (logo + nav) is centred; if that would put the small logo inside the big gear's swept
+  circle, nudge the whole row right just enough to clear it (capped at the right edge).
+*/
+const HERO_GEAR_SELECTOR = '.hero__gear-img';
+/** Wide-landscape layout where the header is transparent over the hero gear. */
+const HERO_GEAR_LAYOUT_QUERY = '(min-width: 1025px) and (orientation: landscape)';
+/** Outermost tooth tip as a fraction of the gear box half-width (asset padding). */
+const HERO_GEAR_RADIUS_RATIO = 0.96;
+/** Breathing room between the logo and the gear teeth, in px. */
+const HERO_GEAR_CLEARANCE = 16;
+
+function useHeaderClearOfHeroGear(
+  logoRef: RefObject<HTMLElement | null>,
+  navRef: RefObject<HTMLElement | null>,
+) {
+  // Layout effect so the first placement lands before paint (no jump on load).
+  useLayoutEffect(() => {
+    const mq = window.matchMedia(HERO_GEAR_LAYOUT_QUERY);
+    let frame = 0;
+    let applied = 0;
+
+    const apply = (offset: number) => {
+      if (offset === applied) return;
+      applied = offset;
+      const transform = offset ? `translateX(${offset}px)` : '';
+      if (logoRef.current) logoRef.current.style.transform = transform;
+      if (navRef.current) navRef.current.style.transform = transform;
+    };
+
+    const place = () => {
+      frame = 0;
+      const logo = logoRef.current;
+      const nav = navRef.current;
+      const row = logo?.parentElement;
+      const gear = document.querySelector<HTMLElement>(HERO_GEAR_SELECTOR)?.parentElement;
+      if (!mq.matches || !logo || !nav || !row || !gear) {
+        apply(0);
+        return;
+      }
+
+      // Unrotated wrapper box: the spinning art sweeps a circle around its centre.
+      const g = gear.getBoundingClientRect();
+      const l = logo.getBoundingClientRect();
+      const cx = g.left + g.width / 2;
+      const cy = g.top + g.height / 2;
+      const reach = (Math.min(g.width, g.height) / 2) * HERO_GEAR_RADIUS_RATIO + HERO_GEAR_CLEARANCE;
+
+      // Closest vertical distance from the gear centre to the logo's row.
+      const dy = cy < l.top ? l.top - cy : cy > l.bottom ? cy - l.bottom : 0;
+      if (dy >= reach) {
+        apply(0);
+        return;
+      }
+
+      const clearLeft = cx + Math.sqrt(reach * reach - dy * dy);
+      const naturalLeft = l.left - applied;
+      const naturalRight = nav.getBoundingClientRect().right - applied;
+      const maxShift = Math.max(0, row.getBoundingClientRect().right - naturalRight);
+      apply(Math.round(Math.min(Math.max(0, clearLeft - naturalLeft), maxShift)));
+    };
+
+    const schedule = () => {
+      if (!frame) frame = requestAnimationFrame(place);
+    };
+
+    place();
+    window.addEventListener('scroll', schedule, { passive: true });
+    window.addEventListener('resize', schedule);
+    window.addEventListener('load', schedule);
+    mq.addEventListener('change', schedule);
+    return () => {
+      if (frame) cancelAnimationFrame(frame);
+      apply(0);
+      window.removeEventListener('load', schedule);
+      window.removeEventListener('scroll', schedule);
+      window.removeEventListener('resize', schedule);
+      mq.removeEventListener('change', schedule);
+    };
+  }, [logoRef, navRef]);
+}
+
 export function Header() {
   const [open, setOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const menuId = useId();
+  const brandRef = useRef<HTMLAnchorElement>(null);
+  const endRef = useRef<HTMLDivElement>(null);
+  useHeaderClearOfHeroGear(brandRef, endRef);
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 8);
@@ -119,6 +205,7 @@ export function Header() {
     <header className={`site-header ${scrolled ? 'site-header--scrolled' : ''}`}>
       <div className="site-header__inner">
         <a
+          ref={brandRef}
           href="#hero"
           className="site-header__brand"
           onClick={close}
@@ -127,7 +214,7 @@ export function Header() {
           <img src={siteContent.logoSrc} alt={siteContent.logoAlt} width={44} height={44} />
         </a>
 
-        <div className="site-header__end">
+        <div ref={endRef} className="site-header__end">
           <nav className="site-header__nav" aria-label="Primary">
             <ul className="site-header__links">
               {siteContent.navLinks.map((link) => (

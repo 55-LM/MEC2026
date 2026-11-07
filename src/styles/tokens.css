@@ -82,6 +82,13 @@
   }
 }
 
+/* Wide landscape — header height scales with the screen (short landscape below still wins) */
+@media (min-width: 1025px) and (orientation: landscape) {
+  :root {
+    --header-height: clamp(3.75rem, 1.5rem + 2.6vw, 6rem);
+  }
+}
+
 @media (max-height: 500px) and (orientation: landscape) {
   :root {
     --header-height: var(--header-height-compact);

@@ -43,8 +43,8 @@
 }
 
 .site-header__brand img {
-  width: 2.75rem;
-  height: 2.75rem;
+  width: var(--header-logo-size, 2.75rem);
+  height: var(--header-logo-size, 2.75rem);
   object-fit: contain;
   mix-blend-mode: screen;
 }
@@ -78,7 +78,7 @@
   padding: 0.45rem 0.7rem;
   color: #ffffff;
   font-family: var(--font-body);
-  font-size: var(--text-small);
+  font-size: var(--header-link-size, var(--text-small));
   font-weight: 500;
   letter-spacing: 0.06em;
   text-transform: uppercase;
@@ -216,6 +216,60 @@
   .site-header__menu-toggle,
   .site-header__mobile {
     display: none !important;
+  }
+}
+
+/*
+  Wide landscape — header spans the screen like the hero title and every
+  size (logo, links, icons, gaps) scales with the viewport width.
+*/
+@media (min-width: 1025px) and (orientation: landscape) {
+  .site-header {
+    --header-link-size: clamp(0.78rem, 0.3rem + 0.6vw, 1.3rem);
+    --header-logo-size: clamp(2.5rem, 1rem + 2vw, 4.25rem);
+  }
+
+  /* Logo + nav centred as one row; Header.tsx nudges it right to clear the hero gear */
+  .site-header__inner {
+    width: calc(100% - 2 * clamp(1.25rem, 3vw, 3.5rem));
+    max-width: none;
+    justify-content: center;
+    gap: clamp(1rem, 1.6vw, 2.25rem);
+  }
+
+  .site-header__end {
+    margin-left: 0;
+  }
+
+  .site-header__brand,
+  .site-header__end {
+    transition: transform 0.25s var(--ease-out);
+  }
+
+  .site-header__nav,
+  .site-header__social--desktop {
+    gap: 0.4em;
+    font-size: var(--header-link-size);
+  }
+
+  .site-header__links {
+    gap: 0.2em;
+  }
+
+  .site-header__links a {
+    min-height: 2.6em;
+    padding: 0.5em 0.85em;
+  }
+
+  .site-header__social a,
+  .site-header__social-pending {
+    min-height: 2.6em;
+    padding: 0.5em 0.6em;
+  }
+
+  .site-header__social svg {
+    width: 1.35em;
+    height: 1.35em;
   }
 }
 
