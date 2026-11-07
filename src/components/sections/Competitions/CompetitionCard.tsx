@@ -226,14 +226,21 @@ export function CompetitionCard({ competition }: CompetitionCardProps) {
         </div>
       </div>
 
-      <div className="competition-card__stickers" aria-label={`${competition.name} documents`}>
-        <DocSticker
-          src={competitionDocStickers.abstractSrc}
-          alt={competitionDocStickers.abstractAlt}
-          label={`${competition.name} ${competition.documentOneLabel}`}
-          href={abstractHref}
-          accentColor={underlineColor}
-        />
+      <div
+        className={`competition-card__stickers${
+          competition.hideDocumentOne ? ' competition-card__stickers--single' : ''
+        }`}
+        aria-label={`${competition.name} documents`}
+      >
+        {competition.hideDocumentOne ? null : (
+          <DocSticker
+            src={competitionDocStickers.abstractSrc}
+            alt={competitionDocStickers.abstractAlt}
+            label={`${competition.name} ${competition.documentOneLabel}`}
+            href={abstractHref}
+            accentColor={underlineColor}
+          />
+        )}
         <DocSticker
           src={competitionDocStickers.rubricSrc}
           alt={competitionDocStickers.rubricAlt}

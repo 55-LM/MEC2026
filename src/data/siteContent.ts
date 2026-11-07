@@ -260,7 +260,7 @@ export const siteContent: SiteContent = {
     {
       id: 'linkedin',
       label: 'LinkedIn',
-      href: '',
+      href: 'https://www.linkedin.com/company/metropolitan-engineering-competition-met-eng-comp/home/',
       icon: 'linkedin',
     },
   ],

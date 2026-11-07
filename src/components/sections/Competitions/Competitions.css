@@ -599,3 +599,12 @@
     z-index: auto;
   }
 }
+
+/*
+  Single document button (Debate has no abstract): the lone Rubric sits
+  centred under its paper. The paper art leans right of the card box, so
+  nudge it over by the same amount.
+*/
+.competition-card__stickers--single .competition-card__sticker {
+  translate: 2.9cqw 0;
+}

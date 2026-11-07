@@ -151,6 +151,8 @@ export interface Competition {
   metaOffsetX?: string;
   /** Marker highlight + Abstract/Rubric underline colour (hex). */
   metaHighlightColor?: string;
+  /** Hide the first document button (e.g. a category with no abstract). */
+  hideDocumentOne?: boolean;
   documentOneLabel: string;
   documentOneUrl: string;
   documentTwoLabel: string;
