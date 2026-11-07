@@ -116,39 +116,24 @@
   .sponsors.section-container .section-container__inner {
     padding-inline: clamp(0.1rem, 0.4vw, 0.35rem);
   }
-
-  .sponsor-box {
-    width: 96%;
-  }
-
-  .sponsor-box--tier1 {
-    width: 100%;
-  }
 }
 
 /*
-  One stage for all three boxes — composition is locked in %,
-  so the group scales together on every viewport.
+  Two cardboard boards — first tilted left and high, second tilted right and
+  lower, overlapping slightly. Offsets are % of the stage width so the pair
+  scales together on every viewport.
 */
 .sponsors__stage {
   width: 100%;
   display: flex;
   justify-content: center;
   overflow: visible;
-  transform: translateY(clamp(-10.5rem, -16vw, -7rem));
-}
-
-/* Must come after base .sponsors__stage so transform isn’t overwritten */
-@media (max-width: 1024px), (orientation: portrait) {
-  .sponsors__title {
-    /* Real layout gap — transform alone doesn’t reserve space */
-    margin-bottom: clamp(2rem, 6vw, 3.25rem);
-  }
-
-  .sponsors__stage {
-    transform: none;
-    margin-top: clamp(0.5rem, 2.5vw, 1.25rem);
-  }
+  /*
+    Centre the boards between the intro copy and the FAQ title: the gap below is
+    this section's bottom padding + FAQ's top padding, so mirror that above.
+  */
+  margin-top: calc(var(--section-padding-y) * 2 + 1.75vw);
+  padding-bottom: 0;
 }
 
 @property --sponsor-sway {
@@ -157,59 +142,62 @@
   initial-value: 0deg;
 }
 
-.sponsors__boxes {
+.sponsors__boards {
   display: flex;
-  flex-direction: column;
-  gap: 0;
-  width: 100%;
-  max-width: 100rem;
+  align-items: flex-start;
+  justify-content: center;
+  /* Same column as the Competitions cards so the boards line up with the papers above */
+  width: min(100% - (var(--container-padding) * 2), 100rem);
+  padding-inline: 0;
   box-sizing: border-box;
-  container-type: inline-size;
-  container-name: sponsors-boxes;
   /* One clock drives both leans — always in phase, opposite directions */
   --sponsor-sway: 0deg;
   animation: sponsor-sway-drive 7s ease-in-out infinite;
 }
 
-.sponsor-box {
+.sponsor-board {
   position: relative;
   margin: 0;
-  /* Same fraction of the stage for every tier */
-  width: 78%;
-  max-width: none;
+  flex: 0 0 auto;
+  /* Two boards minus the 1% overlap fill the column */
+  width: 50.5%;
   line-height: 0;
   background: transparent;
-}
-
-.sponsor-box--left {
-  align-self: flex-start;
-}
-
-.sponsor-box--right {
-  align-self: flex-end;
-}
-
-/* Stack order: Principle on top → Impact → Network behind */
-.sponsor-box--tier1 {
-  z-index: 3;
-  width: 82%;
-  margin-top: 0;
-  /* Pivot near the left edge — leans opposite of Impact */
-  transform: rotate(calc(-2.5deg - var(--sponsor-sway))) translate(-4.5%, 16%);
-  transform-origin: 18% 92%;
   will-change: transform;
 }
 
-.sponsor-box--tier2 {
+.sponsor-board__image {
+  display: block;
+  width: 100%;
+  height: auto;
+  user-select: none;
+  pointer-events: none;
+  filter: drop-shadow(0 14px 26px rgba(0, 0, 0, 0.5));
+}
+
+/* Board one — top-left, leaning back (counter-clockwise), on top of the overlap */
+.sponsor-board--board1 {
   z-index: 2;
-  /* Pivot near the right edge — leans opposite of Principle */
-  transform: rotate(calc(2.25deg + var(--sponsor-sway))) translate(2.5%, 10.5%);
-  transform-origin: 82% 92%;
-  will-change: transform;
+  /* Tilt swings the left corner outwards — pull it back in line with the papers above */
+  translate: 5.5% 0;
+  transform: rotate(calc(-7deg - var(--sponsor-sway)));
+  transform-origin: 30% 80%;
 }
 
-.sponsor-box--tier3 {
+/* Board two — lower-right, leaning forward (clockwise), tucked under board one */
+.sponsor-board--board2 {
   z-index: 1;
+  margin-left: -1%;
+  margin-top: 25%;
+  transform: rotate(calc(7.5deg + var(--sponsor-sway)));
+  transform-origin: 70% 20%;
+}
+
+/* Matches the wider Competitions column on large landscape screens */
+@media (min-width: 1280px) and (orientation: landscape) {
+  .sponsors__boards {
+    width: min(100% - (var(--container-padding) * 2), 110rem);
+  }
 }
 
 @keyframes sponsor-sway-drive {
@@ -218,37 +206,47 @@
     --sponsor-sway: 0deg;
   }
   50% {
-    --sponsor-sway: 1.7deg;
+    --sponsor-sway: 1.2deg;
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .sponsors__boxes {
+  .sponsors__boards {
     animation: none;
   }
 
-  .sponsor-box--tier1,
-  .sponsor-box--tier2 {
+  .sponsor-board {
     will-change: auto;
   }
 }
 
-/* Overlap as a fraction of the stage width — scales with the group */
-.sponsor-box + .sponsor-box {
-  margin-top: -26%;
-}
+/* Portrait / phones — stack the boards so the logos stay readable */
+@media (orientation: portrait), (max-width: 700px) {
+  .sponsors__boards {
+    flex-direction: column;
+    align-items: stretch;
+    width: min(100%, 38rem);
+    padding-inline: 4%;
+  }
 
-.sponsor-box__image {
-  display: block;
-  width: 100%;
-  height: auto;
-  user-select: none;
-  pointer-events: none;
-}
+  .sponsor-board {
+    width: 86%;
+  }
 
-/* Short landscape — keep the same composition, just a narrower stage */
-@media (max-height: 500px) and (orientation: landscape) {
-  .sponsors__boxes {
-    max-width: min(100%, 36rem);
+  .sponsor-board__image {
+    filter: drop-shadow(0 8px 18px rgba(0, 0, 0, 0.45));
+  }
+
+  .sponsor-board--board1 {
+    align-self: flex-start;
+    translate: none;
+    transform: rotate(calc(-5deg - var(--sponsor-sway)));
+  }
+
+  .sponsor-board--board2 {
+    align-self: flex-end;
+    margin-left: 0;
+    margin-top: -4%;
+    transform: rotate(calc(5deg + var(--sponsor-sway)));
   }
 }

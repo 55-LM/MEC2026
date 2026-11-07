@@ -1,34 +1,45 @@
 /*
-  Meet the Team — ends the page. Heading, gear row and building share one
-  grid cell ("stage") so the heading sits over the gear row and the
-  building stays flush with the bottom-right corner. The cell grows to fit
-  whichever is taller. The building width drives every other size.
+  Meet the Team — ends the page. Notebook, heading, gear row and building
+  share one grid cell ("stage"): the Co-Chairs' notebook sits top-left just
+  above the gear row with the stacked heading beside it, and the (smaller)
+  building stays flush with the bottom-right corner. `--team-base-w` drives
+  the notebook, heading and gears; the building is 77% of it.
 */
 .team {
-  --team-building-w: min(62vw, 100svh, 75rem);
+  /* Screen-scaled base unit: notebook, heading and gears size off this */
+  --team-base-w: min(62vw, 100svh, 75rem);
+  /* Building is 77% of the base so the notebook + heading lead */
+  --team-building-w: calc(var(--team-base-w) * 0.77);
   /* Building asset ratio is 1.3043 : 1 (1600 × 1227) */
   --team-building-h: calc(var(--team-building-w) / 1.3043);
-  --team-gear-size: max(4rem, calc(var(--team-building-w) * 0.142));
+  --team-gear-size: max(4rem, calc(var(--team-base-w) * 0.142));
   --team-gear-gap: calc(var(--team-gear-size) * 0.5);
-  /* Centre of the gear row, measured up from the page bottom */
-  --team-row-y: calc(var(--team-building-h) * 0.41);
-  /* Heading: just above the roofline, then one big grid square (5 cells) lower */
-  --team-title-nudge: clamp(0.75rem, 2.5vw, 2.25rem);
-  --team-title-drop: calc(var(--grid-size) * 5);
-  /* Inner width of the heading (the area left of the building) */
-  --team-title-space: calc(100vw - var(--team-building-w) * 0.75 - var(--container-padding) * 2);
-  --team-title-row-w: min(37.5rem, var(--team-title-space));
+  /* Centre of the gear row, measured up from the page bottom (follows the building) */
+  --team-row-y: calc(var(--team-building-h) * 0.3);
+  /* Chairs notebook (asset ratio 1400 × 1698) */
+  --team-notes-w: min(max(16rem, calc(var(--team-base-w) * 0.496)), 36.8vw);
+  --team-notes-h: calc(var(--team-notes-w) * 1.2129);
+  --team-notes-tilt: -8deg;
+  /*
+    Notebook + heading centred as one group (% resolves against the stage
+    width). The heading's right sticker edge is transparent and the notebook
+    tilts out to the left, so ~19% of the heading is left out of the width.
+  */
+  --team-group-w: calc(var(--team-notes-w) + var(--team-title-gap) + var(--team-stack-w) * 0.81);
+  --team-notes-left: max(var(--container-padding), calc((100% - var(--team-group-w)) / 2));
+  /* Gap below the notebook: clears the gear row plus the tilted bottom corner */
+  --team-notes-bottom: calc(
+    var(--team-row-y) + var(--team-gear-size) / 2 + var(--team-notes-w) * 0.09 + 1rem
+  );
+  /* MEET / THE / TEAM stacked heading, beside the notebook */
+  --team-stack-w: clamp(13rem, calc(var(--team-base-w) * 0.6), 40rem);
+  --team-title-gap: clamp(1.5rem, 4vw, 5rem);
+  --team-title-inset: calc(var(--team-base-w) * 0.03);
+  /* Room the caption may use under the stack */
+  --team-title-space: calc(var(--team-stack-w) + var(--team-title-inset) * 1.5);
   /* Shrinks on narrow screens so the longest "Name, Role" (~25em) stays on one line */
   --team-caption-size: max(0.75rem, min(clamp(0.95rem, 1.4vw, 1.1rem), var(--team-title-space) / 25));
-  --team-caption-gap: clamp(0.75rem, 1.6vw, 1.1rem);
-  /* Caption lines to leave room for (2 where long names can wrap) */
-  --team-caption-lines: 1;
-  /* Lowest the heading may start so its caption still clears the gears (sticker row is 0.1162 × its width tall) */
-  --team-title-max-top: calc(
-    var(--team-building-h) - var(--team-row-y) - var(--team-gear-size) / 2
-      - var(--team-title-row-w) * 0.1162 - var(--team-caption-gap)
-      - var(--team-caption-size) * 1.45 * var(--team-caption-lines) - 1rem
-  );
+  --team-caption-gap: clamp(0.5rem, 1.2vw, 0.9rem);
   position: relative;
   z-index: 1;
   display: grid;
@@ -38,28 +49,130 @@
   overflow: clip;
 }
 
+/* ---------- Co-Chairs notebook ---------- */
+
+.team-notes {
+  grid-area: stage;
+  align-self: end;
+  justify-self: start;
+  z-index: 2;
+  width: var(--team-notes-w);
+  margin-left: var(--team-notes-left);
+  margin-bottom: var(--team-notes-bottom);
+  /* Nav "Chairs" lands with the whole notebook in view (header offset comes from scroll-padding) */
+  scroll-margin-top: calc(var(--team-notes-w) * 0.05);
+}
+
+/* Paper + its contents tilt together; content is placed in % of the page */
+.team-notes__page {
+  position: relative;
+  container-type: inline-size;
+  transform: rotate(var(--team-notes-tilt));
+  transform-origin: center;
+}
+
+.team-notes__paper {
+  display: block;
+  width: 100%;
+  height: auto;
+  user-select: none;
+  pointer-events: none;
+  filter: drop-shadow(0 14px 24px rgba(0, 0, 0, 0.45));
+}
+
+.team-notes__heading {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.team-notes__photos {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.team-notes__photo {
+  position: absolute;
+  width: 35%;
+  height: auto;
+  user-select: none;
+  filter: drop-shadow(0 6px 10px rgba(0, 0, 0, 0.35));
+}
+
+/* Steven — left */
+.team-notes__photo--1 {
+  left: 21%;
+  top: 4.5%;
+}
+
+/* Tenzin — right, a touch lower */
+.team-notes__photo--2 {
+  left: 58.5%;
+  top: 6%;
+}
+
+/* Written on the grid paper, right of the spiral */
+.team-notes__message {
+  position: absolute;
+  /* Nearer the paper's right edge than the spiral */
+  left: 23.5%;
+  right: 3.5%;
+  top: 41.5%;
+  bottom: 3%;
+  display: flex;
+  flex-direction: column;
+  gap: 0.7em;
+  font-family: var(--font-body);
+  font-size: 3.45cqi;
+  font-weight: 500;
+  line-height: 1.32;
+  color: #161616;
+}
+
+.team-notes__message p {
+  margin: 0;
+}
+
+.team-notes__message a {
+  color: inherit;
+  text-decoration: underline;
+  text-underline-offset: 0.15em;
+}
+
+.team-notes__message a:hover,
+.team-notes__message a:focus-visible {
+  color: #000000;
+  text-decoration-thickness: 2px;
+}
+
+/* ---------- Heading ---------- */
+
 /*
-  Centred over the part of the row left of the building, one big grid
-  square below the roofline. Screens too short for the full square get as
-  much of it as fits without the caption touching the gears.
+  Beside the notebook: starts just past its right edge, vertically centred on
+  it (bottom margin reaches the notebook's middle, then translate 50% drops
+  the heading's own centre onto that line).
 */
 .team__title {
   grid-area: stage;
-  align-self: start;
+  align-self: end;
   justify-self: start;
   z-index: 2;
   display: flex;
   flex-direction: column;
   align-items: center;
-  width: calc(100% - var(--team-building-w) * 0.75);
-  margin-top: max(
-    -1 * var(--team-title-nudge),
-    min(var(--team-title-drop) - var(--team-title-nudge), var(--team-title-max-top))
-  );
-  padding-inline: var(--container-padding);
+  width: var(--team-stack-w);
+  margin-left: calc(var(--team-notes-left) + var(--team-notes-w) + var(--team-title-gap));
+  margin-bottom: calc(var(--team-notes-bottom) + var(--team-notes-h) / 2);
   text-align: center;
-  /* Set in Team.tsx: centres the heading in a big grid square */
-  translate: 0 var(--team-title-snap, 0px);
+  /* Exactly level with the notebook (no grid-square snap beside it) */
+  translate: 0 50%;
 }
 
 .team__title-sr {
@@ -75,14 +188,15 @@
 }
 
 /*
-  MEET · THE · TEAM in one row. Widths and the negative margins that trim
-  each asset's transparent edge are % of this row (1076 units = the three
-  sticker bodies plus two small gaps), so the row scales as one piece.
+  MEET / THE / TEAM stacked and staggered. Widths keep the assets' shared
+  scale (531 : 448 : 543 px). Each asset has ~80px of transparent edge
+  (11.45% of this stack's width), so the negative margins tuck the visible
+  stickers right up against each other.
 */
 .team__title-stickers {
   display: flex;
-  align-items: center;
-  width: min(100%, 37.5rem);
+  flex-direction: column;
+  width: 100%;
 }
 
 .team__title-sticker {
@@ -91,44 +205,47 @@
   display: block;
   height: auto;
   max-width: none;
-  margin-block: -7.43% -7.53%;
   user-select: none;
   pointer-events: none;
   filter: drop-shadow(0 6px 14px rgba(0, 0, 0, 0.45));
 }
 
-/* MEET */
+/* MEET — top left, tipping down to the right */
 .team__title-sticker--1 {
-  width: 49.35%;
-  margin-left: -7.43%;
+  width: 76%;
+  align-self: flex-start;
   z-index: 1;
-  transform: rotate(-4deg);
+  transform: rotate(7deg);
 }
 
-/* THE */
+/* THE — tucked in on the right */
 .team__title-sticker--2 {
-  width: 41.64%;
-  margin-left: -13.2%;
+  width: 64.1%;
+  align-self: flex-end;
+  margin-top: -23%;
   z-index: 2;
-  transform: rotate(3deg) translateY(-4%);
+  transform: rotate(2deg);
 }
 
-/* TEAM */
+/* TEAM — back to the left, tipping up */
 .team__title-sticker--3 {
-  width: 50.46%;
-  margin-left: -13.2%;
-  margin-right: -7.62%;
+  width: 77.7%;
+  align-self: flex-start;
+  margin-top: -23%;
+  margin-left: 4%;
   z-index: 3;
-  transform: rotate(-3deg);
+  transform: rotate(-4deg);
 }
 
 /* "Name, Role" of the hovered gear; empty (but holding its height) otherwise */
 .team__caption {
-  margin: var(--team-caption-gap) 0 0;
+  /* Pull up past TEAM's transparent bottom edge */
+  margin: calc(var(--team-caption-gap) - var(--team-stack-w) * 0.1) 0 0;
   min-height: 1.45em;
   font-family: var(--font-body);
   font-size: var(--team-caption-size);
   line-height: 1.45;
+  white-space: nowrap;
   color: var(--color-secondary);
 }
 
@@ -261,54 +378,79 @@
 }
 
 @media (max-width: 1024px), (orientation: portrait) {
-  .team {
-    --team-title-row-w: min(27.5rem, var(--team-title-space));
-  }
-
-  .team__title-stickers {
-    width: min(100%, 27.5rem);
-  }
-
   .team__title-sticker {
     filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.4));
   }
 }
 
-/* Phones (portrait): heading moves above the stage, smaller building */
-@media (max-width: 640px) and (orientation: portrait) {
+/*
+  Portrait — no room side by side: notebook, then heading, then the stage,
+  each in its own row so the notebook's writing stays readable.
+*/
+@media (orientation: portrait) {
   .team {
-    --team-building-w: 66vw;
-    --team-gear-size: 3.5rem;
-    --team-row-y: calc(var(--team-building-h) * 0.56);
-    /* Heading spans the full width above the building here */
+    --team-notes-w: min(88vw, 27.2rem);
+    --team-notes-tilt: -4deg;
+    --team-stack-w: min(62vw, 22rem);
+    /* Caption spans the full width here */
     --team-title-space: calc(100vw - var(--container-padding) * 2);
     grid-template-areas:
+      'notes'
       'title'
       'stage';
   }
 
+  .team-notes {
+    grid-area: notes;
+    justify-self: center;
+    margin: 0 0 clamp(1.5rem, 6vw, 3rem);
+  }
+
   .team__title {
     grid-area: title;
-    justify-self: stretch;
-    width: auto;
-    margin-top: 0;
-    margin-bottom: 0.5rem;
+    justify-self: center;
+    margin: 0 0 0.5rem;
+    translate: 0 var(--team-title-snap, 0px);
+  }
+}
+
+/* Phones (portrait): smaller building and gears */
+@media (max-width: 640px) and (orientation: portrait) {
+  .team {
+    --team-building-w: 50.6vw;
+    --team-gear-size: 3.5rem;
+    --team-row-y: calc(var(--team-building-h) * 0.45);
+    --team-stack-w: min(62vw, 15rem);
   }
 
   /* Long names may wrap to two lines */
   .team__caption {
     min-height: 2.9em;
+    white-space: normal;
+  }
+}
+
+/*
+  Squarer landscape screens: the centred group sits further over the
+  building's sloping roof, so lift the heading a touch to keep TEAM clear.
+*/
+@media (orientation: landscape) and (max-aspect-ratio: 17 / 10) {
+  .team__title {
+    translate: 0 calc(50% - var(--team-base-w) * 0.035);
   }
 }
 
 /* Short landscape phones: long names can wrap, keep room for two lines */
 @media (max-height: 500px) and (orientation: landscape) {
+  /* Notebook stays a size larger here so its writing is still readable */
   .team {
-    --team-caption-lines: 2;
+    --team-notes-w: min(max(20rem, calc(var(--team-base-w) * 0.62)), 46vw);
   }
 
   .team__caption {
+    width: var(--team-title-space);
     min-height: 2.9em;
+    white-space: normal;
   }
 }
 

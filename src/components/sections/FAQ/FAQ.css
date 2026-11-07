@@ -70,38 +70,124 @@
   transform: translateX(-2%) rotate(-2deg);
 }
 
-.faq__intro {
-  margin: clamp(0.75rem, 2vw, 1.25rem) 0 0;
-  max-width: min(36rem, 100%);
-  padding-inline: 0.5rem;
-  font-family: var(--font-body);
-  font-size: clamp(0.92rem, 1.7vw, 1.1rem);
-  font-weight: 400;
-  line-height: 1.45;
-  text-align: center;
-  color: var(--color-secondary);
+/*
+  Questions in the middle, sticker columns in the gutters either side.
+  The row is wider than the section column so the stickers sit further out.
+*/
+.faq__body {
+  --faq-sticker: clamp(4.75rem, 7vw, 8.5rem);
+  /* Right column: 5 stickers; left: 4 spread over the same height */
+  --faq-sticker-gap: clamp(1.25rem, 2.6vw, 2.75rem);
+  --faq-body-w: min(100vw - var(--container-padding) * 2, 86rem);
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 48rem) minmax(0, 1fr);
+  align-items: start;
+  column-gap: clamp(1.5rem, 5vw - 1rem, 7rem);
+  width: var(--faq-body-w);
+  margin-inline: calc((100% - var(--faq-body-w)) / 2);
 }
 
 .faq__list {
-  max-width: 48rem;
-  margin-inline: auto;
+  grid-column: 2;
+  width: 100%;
+}
+
+.faq__side {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--faq-sticker-gap);
+  padding-top: 0.25rem;
+  pointer-events: none;
+}
+
+/* 4 stickers fill the same height as the right column's 5 */
+.faq__side--left {
+  grid-column: 1;
+  gap: calc((var(--faq-sticker) + var(--faq-sticker-gap) * 4) / 3);
+  padding-top: calc(var(--faq-sticker) * 0.15);
+}
+
+.faq__side--right {
+  grid-column: 3;
+}
+
+.faq__side-sticker {
+  display: block;
+  width: min(var(--faq-sticker), 100%);
+  height: auto;
+  aspect-ratio: 1;
+  object-fit: contain;
+  user-select: none;
+  filter: drop-shadow(0 8px 14px rgba(0, 0, 0, 0.5));
+}
+
+/* Gentle zig-zag + tilt so the columns don't look stamped */
+.faq__side-sticker:nth-child(odd) {
+  transform: translateX(-12%) rotate(-8deg);
+}
+
+.faq__side-sticker:nth-child(even) {
+  transform: translateX(12%) rotate(7deg);
+}
+
+.faq__side--right .faq__side-sticker:nth-child(odd) {
+  transform: translateX(12%) rotate(8deg);
+}
+
+.faq__side--right .faq__side-sticker:nth-child(even) {
+  transform: translateX(-12%) rotate(-6deg);
+}
+
+/* Questions in Lexend Deca instead of the display face */
+.faq__list .accordion-item__trigger {
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-size: clamp(1rem, 1.25vw, 1.15rem);
+  line-height: 1.35;
+  letter-spacing: 0;
+  text-transform: none;
 }
 
 .faq__list p {
   margin: 0;
 }
 
+/* No card behind each question — just the text on the grid */
+.faq__list .accordion-item,
+.faq__list .accordion-item.is-open {
+  background: transparent;
+  border: 0;
+  border-radius: 0;
+}
+
+.faq__list .accordion-item__icon {
+  color: #ffffff;
+}
+
 @media (max-width: 1024px), (orientation: portrait) {
+  /* No gutters to spare — questions take the full width, stickers hide */
+  .faq__body {
+    grid-template-columns: minmax(0, 1fr);
+    width: auto;
+    margin-inline: 0;
+  }
+
+  .faq__list {
+    grid-column: 1;
+    max-width: 48rem;
+    margin-inline: auto;
+  }
+
+  .faq__side {
+    display: none;
+  }
+
   .faq__title-stickers {
     width: min(100%, 23rem);
   }
 
   .faq__title-sticker {
     filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.4));
-  }
-
-  .faq__intro {
-    font-size: clamp(1.05rem, 4vw, 1.28rem);
-    line-height: 1.5;
   }
 }

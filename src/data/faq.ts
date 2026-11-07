@@ -25,6 +25,23 @@ export const faqTitleStickers = [
   },
 ] as const;
 
+/** Decorative chrome stickers in the gutters beside the questions (wide screens only). */
+export const faqSideStickers = {
+  left: [
+    { id: 'flask-gear', src: '/images/faq/side/flask-gear.webp', width: 359, height: 360 },
+    { id: 'bulb-gear', src: '/images/faq/side/bulb-gear.webp', width: 296, height: 360 },
+    { id: 'chat-gear', src: '/images/faq/side/chat-gear.webp', width: 360, height: 353 },
+    { id: 'head-gears', src: '/images/faq/side/head-gears.webp', width: 323, height: 360 },
+  ],
+  right: [
+    { id: 'wrench-gear', src: '/images/faq/side/wrench-gear.webp', width: 360, height: 313 },
+    { id: 'monitor-gear', src: '/images/faq/side/monitor-gear.webp', width: 360, height: 328 },
+    { id: 'hardhat-gear', src: '/images/faq/side/hardhat-gear.webp', width: 310, height: 360 },
+    { id: 'team-gears', src: '/images/faq/side/team-gears.webp', width: 360, height: 219 },
+    { id: 'head-chat', src: '/images/faq/side/head-chat.webp', width: 360, height: 282 },
+  ],
+} as const;
+
 /** FAQ answers carried over from the MEC 2025 website (metengcomp.ca). */
 export const faqItems: FaqItem[] = [
   {

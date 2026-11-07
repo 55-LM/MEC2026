@@ -1,5 +1,6 @@
 import { useId, useLayoutEffect, useRef, useState, type RefObject } from 'react';
 import { teamTitleStickers } from '../../../data/team';
+import { ChairsNotebook } from './ChairsNotebook';
 import { TeamGears, type ActiveGear } from './TeamGears';
 import './Team.css';
 
@@ -43,6 +44,8 @@ function useCentreInGridSquare(
       /* Square centres sit half a square above each bold line */
       const below = baseline - square * (Math.floor((baseline - centre) / square) + 0.5);
       let next = below - centre;
+      /* Nearest square (up or down) so the heading stays level with the notebook */
+      if (next > square / 2) next -= square;
       if (gear) {
         const gearTop = gear.getBoundingClientRect().top - rootTop;
         if (blockBottom + next > gearTop - GEAR_CLEARANCE_PX) next -= square;
@@ -68,8 +71,9 @@ function useCentreInGridSquare(
 }
 
 /**
- * Meet the Team — ends the page. The heading sits over the coordinator gears,
- * which roll out from behind the George Vari building (bottom-right).
+ * Meet the Team — ends the page. The Co-Chairs' notebook sits top-left with
+ * the stacked heading beside it; the coordinator gears roll out from behind
+ * the George Vari building (bottom-right).
  * Hovering, tapping or focusing a gear shows "Name, Role" under the heading.
  */
 export function Team() {
@@ -82,6 +86,8 @@ export function Team() {
 
   return (
     <section id="team" className="team">
+      <ChairsNotebook />
+
       <header ref={headerRef} className="team__title">
         <h2 id={headingId} className="team__title-sr">
           Meet the Team

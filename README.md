@@ -43,10 +43,9 @@ src/
   components/
     layout/                   # Header, Footer, GridBackground, SectionContainer
     ui/                       # Button, Polaroid, Sticker, Accordion, …
-    sections/                 # Hero, About, Competitions, Sponsors, FAQ, Chairs, Team
+    sections/                 # Hero, About, Competitions, Sponsors, FAQ, Team
   data/                       # Editable content arrays/objects
   styles/                     # tokens.css, globals.css, animations.css
-  services/formSubmission.ts  # Chairs question form
   types/index.ts
 public/images/                # Logos, photos, placeholders
 ```
@@ -60,8 +59,7 @@ Each major section is modular: its own folder, CSS, and data source. Update cont
 3. **Competitions** — nine stream cards with two document buttons each  
 4. **Sponsors** — three tier “boxes” with sticker-style logos  
 5. **FAQ** — accessible accordion (single-open by default)  
-6. **Chairs** — two chair profiles + participant question form  
-7. **Meet the Team** — coordinator gears roll out from behind the George Vari building at the bottom of the page; hover / tap / focus shows “Name, Role” under the heading  
+6. **Meet the Team** — the Co-Chairs' notebook (two polaroids + welcome note), a stacked heading, and coordinator gears roll out from behind the George Vari building at the bottom of the page; hover / tap / focus shows “Name, Role” under the heading  
 
 ## Global black grid background
 
@@ -120,27 +118,11 @@ Edit `src/data/faq.ts`. Accordion API: `allowMultiple` on `Accordion` (default `
 
 ### Chairs
 
-Edit `src/data/chairs.ts`. Images in `public/images/chairs/`.
+The Co-Chairs' notebook sits in Meet the Team (`ChairsNotebook.tsx`, styled in `Team.css`). Edit the message, email and photos in `src/data/chairs.ts`. Images in `public/images/team/chairs/`.
 
 ### Team carousel
 
 Edit `teamMembers` in `src/data/team.ts` (scroll order). Gear photos live in `public/images/team/gears/` as `first-last.webp` (320×320). Behaviour lives in `TeamGears.tsx`, sizing in `Team.css`.
-
-## Configuring the participant question form
-
-1. Create a form at [Formspree](https://formspree.io) (or your own endpoint).
-2. Copy `.env.example` to `.env`.
-3. Set:
-
-```env
-VITE_FORMSPREE_ENDPOINT=https://formspree.io/f/xxxxxxxx
-```
-
-4. Restart `npm run dev`.
-
-Until configured, submit shows a clear **unavailable** message — success is never simulated.
-
-Logic lives in `src/services/formSubmission.ts`, independent of the Chairs UI.
 
 ## Responsive layouts
 
@@ -148,7 +130,7 @@ Section CSS files contain orientation-aware rules (including `max-height` + `ori
 
 ## Animations
 
-Motion is used for hero entrance, polaroids, FAQ, chairs, and the team carousel. Global reduced-motion support is in `src/styles/animations.css` and `usePrefersReducedMotion`.
+Motion is used for hero entrance, polaroids, FAQ, and the team carousel. Global reduced-motion support is in `src/styles/animations.css` and `usePrefersReducedMotion`.
 
 ## Deployment
 
@@ -158,7 +140,7 @@ Any static host works (Netlify, Vercel, GitHub Pages, Cloudflare Pages, universi
 npm run build
 ```
 
-Deploy the `dist/` folder. Set `VITE_FORMSPREE_ENDPOINT` in the host’s environment variables if the form should work in production.
+Deploy the `dist/` folder.
 
 For GitHub Pages with a project path, set Vite `base` in `vite.config.ts`.
 

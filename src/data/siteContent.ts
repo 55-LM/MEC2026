@@ -127,7 +127,7 @@ export const siteContent: SiteContent = {
         rotation: 4,
         accentColor: '#f472b6',
         underlineStyle: 'scribble',
-        href: '',
+        href: 'http://shop.metengcomp.mues.ca/',
       },
       {
         id: 'sticker-rulebook',
@@ -137,7 +137,7 @@ export const siteContent: SiteContent = {
         rotation: -7,
         accentColor: '#e8c547',
         underlineStyle: 'single',
-        href: '',
+        href: '/docs/mec-2026-rulebook.pdf',
       },
       {
         id: 'sticker-schedule',
@@ -147,7 +147,7 @@ export const siteContent: SiteContent = {
         rotation: 5,
         accentColor: '#5b9fd4',
         underlineStyle: 'multi',
-        href: '',
+        href: '/docs/mec-2026-schedule.pdf',
       },
       {
         id: 'sticker-judge',
@@ -157,7 +157,7 @@ export const siteContent: SiteContent = {
         rotation: -3,
         accentColor: '#e87a5b',
         underlineStyle: 'double',
-        href: '',
+        href: 'http://judges.metengcomp.mues.ca/',
       },
       {
         id: 'sticker-participant',
@@ -167,7 +167,7 @@ export const siteContent: SiteContent = {
         rotation: 8,
         accentColor: '#6bcb8a',
         underlineStyle: 'loop',
-        href: '',
+        href: 'https://hub.metengcomp.mues.ca/participant/signin',
       },
       {
         id: 'sticker-rooms',
@@ -177,7 +177,7 @@ export const siteContent: SiteContent = {
         rotation: -5,
         accentColor: '#c084fc',
         underlineStyle: 'cross',
-        href: '',
+        href: '/docs/mec-2026-room-assignments.pdf',
       },
       {
         id: 'sticker-board',
@@ -242,10 +242,7 @@ export const siteContent: SiteContent = {
     'Partnering with MEC gives your company valuable exposure to 500+ attendees with proven design skills who are ready to make an impact at your organization.',
   ],
 
-  faqIntro: 'Answers to common questions about competing at MEC.',
 
-  chairsIntro:
-    'Meet the event chairs leading MEC. Have a question? Send it through the form below.',
 
   footer: {
     description:

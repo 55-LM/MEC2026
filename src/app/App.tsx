@@ -5,7 +5,6 @@ import { About } from '../components/sections/About/About';
 import { Competitions } from '../components/sections/Competitions/Competitions';
 import { Sponsors } from '../components/sections/Sponsors/Sponsors';
 import { FAQ } from '../components/sections/FAQ/FAQ';
-import { Chairs } from '../components/sections/Chairs/Chairs';
 import { Team } from '../components/sections/Team/Team';
 
 /**
@@ -26,7 +25,6 @@ export default function App() {
         <Competitions />
         <Sponsors />
         <FAQ />
-        <Chairs />
         <Team />
       </main>
     </>

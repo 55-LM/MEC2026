@@ -177,18 +177,21 @@ export interface CompetitionMetaStickers {
 
 export type SponsorTierId = 'tier1' | 'tier2' | 'tier3';
 
-export interface SponsorTier {
-  id: SponsorTierId;
+/** A cardboard board photo with the sponsor stickers already on it. */
+export interface SponsorBoard {
+  id: string;
   label: string;
-  /** Open box artwork for this tier (sponsors go on as stickers later). */
-  boxImage: string;
-  boxImageAlt: string;
+  /** Small + large WebP renditions (same artwork). */
+  imageSmall: string;
+  imageLarge: string;
+  /** Lists the sponsors on the board, since their logos are baked into the photo. */
+  imageAlt: string;
   /**
-   * Native pixel size of `boxImage`. Reserves the box's space before the lazy
+   * Native pixel size of `imageLarge`. Reserves the board's space before the lazy
    * image loads, so sections below don't shift (and nav jumps land correctly).
    */
-  boxImageWidth: number;
-  boxImageHeight: number;
+  imageWidth: number;
+  imageHeight: number;
 }
 
 export interface Sponsor {
@@ -207,14 +210,31 @@ export interface FaqItem {
   answer: string;
 }
 
-export interface Chair {
+/** A Co-Chair polaroid pinned to the chairs notebook. */
+export interface ChairPhoto {
   id: string;
   name: string;
   role: string;
   image: string;
   imageAlt: string;
-  shortBio: string;
-  optionalSocialLink?: string;
+  /** Native pixel size of `image` (reserves space before it loads). */
+  width: number;
+  height: number;
+}
+
+/** The Co-Chairs' note in the Meet the Team section. */
+export interface ChairsNote {
+  heading: string;
+  notebookImage: string;
+  /** Same notebook at a larger size; the browser picks one for the screen. */
+  notebookSources: { src: string; width: number }[];
+  notebookWidth: number;
+  notebookHeight: number;
+  photos: ChairPhoto[];
+  /** Paragraphs written on the notebook page. */
+  message: string[];
+  /** Shown as a mailto link at the end of the last line. */
+  email: string;
 }
 
 export interface TeamMember {
@@ -246,19 +266,6 @@ export interface SiteContent {
   aboutChapters: AboutChapter[];
   competitionsIntro: string;
   sponsorsIntro: string[];
-  faqIntro: string;
-  chairsIntro: string;
   footer: FooterContent;
   socialLinks: SocialLink[];
 }
-
-export interface QuestionFormPayload {
-  name: string;
-  email: string;
-  subject: string;
-  message: string;
-}
-
-export type FormSubmissionResult =
-  | { ok: true }
-  | { ok: false; error: string; unavailable?: boolean };

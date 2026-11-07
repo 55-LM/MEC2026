@@ -1,6 +1,6 @@
-import type { Sponsor, SponsorTier } from '../types';
+import type { Sponsor, SponsorBoard } from '../types';
 
-/** Stacked title stickers above the sponsor boxes. */
+/** Stacked title stickers above the sponsor boards. */
 export const sponsorTitleStickers = [
   {
     id: 'our',
@@ -14,36 +14,29 @@ export const sponsorTitleStickers = [
   },
 ];
 
-/**
- * Tier boxes only for now — add sponsors as stickers later via `sponsors`.
- * Order: Principle (top) → Impact → Network (lowest).
- */
-export const sponsorTiers: SponsorTier[] = [
+/** Two cardboard boards with sponsor stickers — first sits top-left, second lower-right. */
+export const sponsorBoards: SponsorBoard[] = [
   {
-    id: 'tier1',
-    label: 'Principle Partners',
-    boxImage: '/images/sponsors/PrinciplePartnerBox.webp',
-    boxImageAlt: 'Principle Partners open box',
-    boxImageWidth: 1394,
-    boxImageHeight: 1296,
+    id: 'board1',
+    label: 'Sponsors board one',
+    imageSmall: '/images/sponsors/SponsorBoard1-900.webp',
+    imageLarge: '/images/sponsors/SponsorBoard1-1600.webp',
+    imageAlt:
+      'Cardboard board with sponsor stickers: Toronto Metropolitan University Faculty of Engineering & Architectural Science, DMZ, Metropolitan Undergraduate Engineering Society, Innovation Boost Zone, Fujifilm, Salad King Thai Food',
+    imageWidth: 1600,
+    imageHeight: 1594,
   },
   {
-    id: 'tier2',
-    label: 'Impact Partners',
-    boxImage: '/images/sponsors/ImpactPartnerBox.webp',
-    boxImageAlt: 'Impact Partners open box',
-    boxImageWidth: 1258,
-    boxImageHeight: 1095,
-  },
-  {
-    id: 'tier3',
-    label: 'Network Partners',
-    boxImage: '/images/sponsors/NetworkPartnerBox.webp',
-    boxImageAlt: 'Network Partners open box',
-    boxImageWidth: 1258,
-    boxImageHeight: 1095,
+    id: 'board2',
+    label: 'Sponsors board two',
+    imageSmall: '/images/sponsors/SponsorBoard2-900.webp',
+    imageLarge: '/images/sponsors/SponsorBoard2-1600.webp',
+    imageAlt:
+      'Cardboard board with sponsor stickers: Souvenir Plus Print, Pita & Hummus, Quest Awards, Pastable, Egg Club, Professional Engineers Ontario, ThinkOn',
+    imageWidth: 1600,
+    imageHeight: 1594,
   },
 ];
 
-/** Empty until sponsor stickers are placed on the boxes. */
+/** Individual sponsor entries (logos currently live on the board photos). */
 export const sponsors: Sponsor[] = [];

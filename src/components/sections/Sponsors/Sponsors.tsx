@@ -1,15 +1,8 @@
-import { sponsorTiers, sponsorTitleStickers } from '../../../data/sponsors';
+import { sponsorBoards, sponsorTitleStickers } from '../../../data/sponsors';
 import { siteContent } from '../../../data/siteContent';
 import { SectionContainer } from '../../layout/SectionContainer';
-import { SponsorTierBox } from './SponsorTiers';
+import { SponsorBoardCard } from './SponsorBoards';
 import './Sponsors.css';
-
-/** Principle + Network left; Impact right (near page edges). */
-const tierAlign: Record<string, 'left' | 'right'> = {
-  tier1: 'left',
-  tier2: 'right',
-  tier3: 'left',
-};
 
 export function Sponsors() {
   return (
@@ -37,13 +30,9 @@ export function Sponsors() {
       </header>
 
       <div className="sponsors__stage">
-        <div className="sponsors__boxes">
-          {sponsorTiers.map((tier) => (
-            <SponsorTierBox
-              key={tier.id}
-              tier={tier}
-              align={tierAlign[tier.id] ?? 'left'}
-            />
+        <div className="sponsors__boards">
+          {sponsorBoards.map((board) => (
+            <SponsorBoardCard key={board.id} board={board} />
           ))}
         </div>
       </div>
