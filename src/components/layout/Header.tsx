@@ -90,7 +90,9 @@ function SocialList({
 /*
   The hero gear (wide landscape layout) spins in the top-left corner. The header row
   (logo + nav) is centred; if that would put the small logo inside the big gear's swept
-  circle, nudge the whole row right just enough to clear it (capped at the right edge).
+  circle at the top of the page, nudge the whole row right just enough to clear it
+  (capped at the right edge). Worked out for the page top only — the row stays put
+  while scrolling.
 */
 const HERO_GEAR_SELECTOR = '.hero__gear-img';
 /** Wide-landscape layout where the header is transparent over the hero gear. */
@@ -130,10 +132,11 @@ function useHeaderClearOfHeroGear(
       }
 
       // Unrotated wrapper box: the spinning art sweeps a circle around its centre.
+      // Measured as if scrolled to the top (the header is sticky, so its row doesn't move).
       const g = gear.getBoundingClientRect();
       const l = logo.getBoundingClientRect();
       const cx = g.left + g.width / 2;
-      const cy = g.top + g.height / 2;
+      const cy = g.top + window.scrollY + g.height / 2;
       const reach = (Math.min(g.width, g.height) / 2) * HERO_GEAR_RADIUS_RATIO + HERO_GEAR_CLEARANCE;
 
       // Closest vertical distance from the gear centre to the logo's row.
@@ -155,7 +158,8 @@ function useHeaderClearOfHeroGear(
     };
 
     place();
-    window.addEventListener('scroll', schedule, { passive: true });
+    // Nav text width (and so the centred row) changes once the web fonts load.
+    document.fonts?.ready.then(schedule).catch(() => {});
     window.addEventListener('resize', schedule);
     window.addEventListener('load', schedule);
     mq.addEventListener('change', schedule);
@@ -163,7 +167,6 @@ function useHeaderClearOfHeroGear(
       if (frame) cancelAnimationFrame(frame);
       apply(0);
       window.removeEventListener('load', schedule);
-      window.removeEventListener('scroll', schedule);
       window.removeEventListener('resize', schedule);
       mq.removeEventListener('change', schedule);
     };
