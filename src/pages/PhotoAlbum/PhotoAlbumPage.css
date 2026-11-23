@@ -21,13 +21,6 @@
   letter-spacing: 0.04em;
   text-transform: uppercase;
   text-decoration: none;
-  transition: border-color 0.2s ease, color 0.2s ease;
-}
-
-.photo-album__back:hover,
-.photo-album__back:focus-visible {
-  border-color: var(--color-accent);
-  color: var(--color-accent);
 }
 
 .photo-album {
