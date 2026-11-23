@@ -102,6 +102,11 @@
   width: clamp(12rem, 24vw, 20rem);
 }
 
+/* Pull the hover underline up, nearer the sticker edge */
+.photo-album__peel .sticker-stroke {
+  bottom: -0.35rem;
+}
+
 .photo-album__photo {
   display: block;
   width: 100%;
