@@ -115,6 +115,26 @@
   transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
+.photo-album__cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  line-height: 1;
+  color: var(--color-text);
+  font-size: 0.9rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.photo-album__cta-arrow {
+  transition: transform 0.25s ease;
+}
+
+.photo-album__day-inner:hover .photo-album__cta-arrow,
+.photo-album__day-inner:focus-visible .photo-album__cta-arrow {
+  transform: translateX(0.3rem);
+}
+
 .photo-album__note {
   line-height: 1;
   color: var(--color-text-muted);
@@ -164,7 +184,8 @@
 
 @media (prefers-reduced-motion: reduce) {
   .photo-album__sticker,
-  .photo-album__photo {
+  .photo-album__photo,
+  .photo-album__cta-arrow {
     transition: none;
   }
 }

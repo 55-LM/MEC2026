@@ -46,6 +46,8 @@ export interface PhotoAlbumContent {
   title: string;
   /** Shown under a day button that has no link yet */
   pendingNote: string;
+  /** Text (with an arrow) under each photo that has an album link */
+  ctaLabel: string;
   backLabel: string;
   days: PhotoAlbumDay[];
 }

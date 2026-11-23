@@ -1,5 +1,5 @@
 import type { CSSProperties } from 'react';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, ArrowRight } from 'lucide-react';
 import { GridBackground } from '../../components/layout/GridBackground';
 import StickerPeel from '../../components/ui/StickerPeel/StickerPeel';
 import { photoAlbum } from '../../data/photoAlbum';
@@ -50,7 +50,12 @@ export function PhotoAlbumPage() {
                   decoding="async"
                   draggable={false}
                 />
-                {href ? null : (
+                {href ? (
+                  <span className="photo-album__cta" aria-hidden="true">
+                    {photoAlbum.ctaLabel}
+                    <ArrowRight className="photo-album__cta-arrow" size={18} />
+                  </span>
+                ) : (
                   <span className="photo-album__note">{photoAlbum.pendingNote}</span>
                 )}
               </>
@@ -67,7 +72,7 @@ export function PhotoAlbumPage() {
                     className="photo-album__day-inner"
                     href={href}
                     {...(day.sameTab ? {} : { target: '_blank', rel: 'noreferrer' })}
-                    aria-label={`${day.name} photos`}
+                    aria-label={`${photoAlbum.ctaLabel}: ${day.name} photos`}
                   >
                     {content}
                   </a>

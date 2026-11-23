@@ -7,6 +7,7 @@ import type { PhotoAlbumContent } from '../types';
 export const photoAlbum: PhotoAlbumContent = {
   title: 'MEC 2026 Photo Album',
   pendingNote: 'Coming soon',
+  ctaLabel: 'Go to album',
   backLabel: 'Back to home',
   days: [
     {
