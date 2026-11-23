@@ -22,10 +22,7 @@ export function PhotoAlbumPage() {
       </header>
 
       <main id="photo-album" className="photo-album">
-        <h1 className="photo-album__title">
-          <img src={photoAlbum.titleImage} alt={photoAlbum.title} draggable={false} />
-        </h1>
-        <p className="photo-album__intro">{photoAlbum.intro}</p>
+        <h1 className="sr-only">{photoAlbum.title}</h1>
 
         <ul className="photo-album__days" aria-label="Photo albums by day">
           {photoAlbum.days.map((day) => {
@@ -40,31 +37,41 @@ export function PhotoAlbumPage() {
               />
             );
 
+            const content = (
+              <>
+                <span
+                  className="photo-album__sticker"
+                  style={{ '--sticker-angle': `${day.rotation}deg` } as CSSProperties}
+                >
+                  {peel}
+                </span>
+                <img
+                  className="photo-album__photo"
+                  src={day.photo}
+                  alt={day.photoAlt}
+                  loading="lazy"
+                  decoding="async"
+                  draggable={false}
+                />
+                {href ? null : (
+                  <span className="photo-album__note">{photoAlbum.pendingNote}</span>
+                )}
+              </>
+            );
+
             return (
-              <li
-                key={day.id}
-                className="photo-album__day"
-                style={{ '--sticker-angle': `${day.rotation}deg` } as CSSProperties}
-              >
+              <li key={day.id} className="photo-album__day">
                 {href ? (
                   <a
+                    className="photo-album__day-inner"
                     href={href}
                     {...(day.sameTab ? {} : { target: '_blank', rel: 'noreferrer' })}
                     aria-label={`${day.name} photos`}
                   >
-                    {peel}
+                    {content}
                   </a>
                 ) : (
-                  <div
-                    className="photo-album__day-pending"
-                    role="img"
-                    aria-label={`${day.name} photos (${photoAlbum.pendingNote.toLowerCase()})`}
-                  >
-                    {peel}
-                    <span className="photo-album__note" aria-hidden="true">
-                      {photoAlbum.pendingNote}
-                    </span>
-                  </div>
+                  <div className="photo-album__day-inner">{content}</div>
                 )}
               </li>
             );

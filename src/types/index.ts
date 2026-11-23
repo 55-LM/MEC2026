@@ -42,13 +42,18 @@ export interface HeroSticker {
 
 /** Content for the standalone photo album page (/photos/). */
 export interface PhotoAlbumContent {
+  /** Page heading for screen readers (not shown on screen) */
   title: string;
-  titleImage: string;
-  intro: string;
   /** Shown under a day button that has no link yet */
   pendingNote: string;
   backLabel: string;
-  days: HeroSticker[];
+  days: PhotoAlbumDay[];
+}
+
+/** One day on the photo album page: sticker button + preview photo underneath. */
+export interface PhotoAlbumDay extends HeroSticker {
+  photo: string;
+  photoAlt: string;
 }
 
 export interface HeroContent {
