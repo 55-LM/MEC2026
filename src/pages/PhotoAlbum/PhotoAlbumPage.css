@@ -66,9 +66,32 @@
   transition: transform 0.25s ease;
 }
 
+/* Hovering anywhere on a day (sticker or photo) plays the sticker animation
+   and tilts the photo the same way as its sticker. */
 .photo-album__day-inner:hover .photo-album__sticker,
 .photo-album__day-inner:focus-visible .photo-album__sticker {
   transform: rotate(var(--sticker-angle, 0deg)) scale(1.04);
+}
+
+.photo-album__day-inner:hover .sticker-image,
+.photo-album__day-inner:focus-visible .sticker-image {
+  filter: drop-shadow(0 8px 16px rgba(0, 0, 0, 0.42));
+}
+
+.photo-album__day-inner:hover .sticker-stroke,
+.photo-album__day-inner:focus-visible .sticker-stroke {
+  opacity: 1;
+}
+
+.photo-album__day-inner:hover .sticker-stroke__draw,
+.photo-album__day-inner:focus-visible .sticker-stroke__draw {
+  stroke-dashoffset: 0;
+}
+
+.photo-album__day-inner:hover .photo-album__photo,
+.photo-album__day-inner:focus-visible .photo-album__photo {
+  transform: rotate(calc(var(--sticker-angle, 0deg) * 0.6)) scale(1.03);
+  box-shadow: 0 1.25rem 2.75rem rgba(0, 0, 0, 0.65);
 }
 
 .photo-album__peel {
@@ -89,6 +112,7 @@
   border: clamp(0.4rem, 0.8vw, 0.6rem) solid #fff;
   box-shadow: 0 0.75rem 2rem rgba(0, 0, 0, 0.55);
   user-select: none;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
 .photo-album__note {
@@ -139,7 +163,8 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .photo-album__sticker {
+  .photo-album__sticker,
+  .photo-album__photo {
     transition: none;
   }
 }

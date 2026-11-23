@@ -39,10 +39,7 @@ export function PhotoAlbumPage() {
 
             const content = (
               <>
-                <span
-                  className="photo-album__sticker"
-                  style={{ '--sticker-angle': `${day.rotation}deg` } as CSSProperties}
-                >
+                <span className="photo-album__sticker">
                   {peel}
                 </span>
                 <img
@@ -60,7 +57,11 @@ export function PhotoAlbumPage() {
             );
 
             return (
-              <li key={day.id} className="photo-album__day">
+              <li
+                key={day.id}
+                className="photo-album__day"
+                style={{ '--sticker-angle': `${day.rotation}deg` } as CSSProperties}
+              >
                 {href ? (
                   <a
                     className="photo-album__day-inner"
