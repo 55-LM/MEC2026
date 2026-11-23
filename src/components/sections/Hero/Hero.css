@@ -563,10 +563,7 @@
   .hero__sticker--shop,
   .hero__sticker--rulebook,
   .hero__sticker--schedule,
-  .hero__sticker--judge,
-  .hero__sticker--participant,
-  .hero__sticker--rooms,
-  .hero__sticker--board {
+  .hero__sticker--photos {
     transform: rotate(calc(var(--sticker-angle, 0deg) * 0.4));
   }
 

@@ -36,6 +36,19 @@ export interface HeroSticker {
     | 'thinLoop';
   /** Optional link; empty string = non-clickable */
   href?: string;
+  /** Open in the same tab (for pages on this site). Defaults to a new tab. */
+  sameTab?: boolean;
+}
+
+/** Content for the standalone photo album page (/photos/). */
+export interface PhotoAlbumContent {
+  title: string;
+  titleImage: string;
+  intro: string;
+  /** Shown under a day button that has no link yet */
+  pendingNote: string;
+  backLabel: string;
+  days: HeroSticker[];
 }
 
 export interface HeroContent {

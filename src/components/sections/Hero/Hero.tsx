@@ -513,7 +513,6 @@ export function Hero() {
                   alt={sticker.imageAlt}
                   accentColor={sticker.accentColor}
                   underlineStyle={sticker.underlineStyle}
-                  underlineFullWidth={sticker.id === 'sticker-board'}
                   className="hero__sticker-peel"
                 />
               );
@@ -528,26 +527,16 @@ export function Hero() {
                   }${
                     sticker.id === 'sticker-schedule' ? ' hero__sticker--schedule' : ''
                   }${
-                    sticker.id === 'sticker-judge' ? ' hero__sticker--judge' : ''
-                  }${
-                    sticker.id === 'sticker-participant' ? ' hero__sticker--participant' : ''
-                  }${
-                    sticker.id === 'sticker-rooms' ? ' hero__sticker--rooms' : ''
-                  }${
-                    sticker.id === 'sticker-board' ? ' hero__sticker--board' : ''
-                  }${
-                    sticker.id === 'sticker-board'
-                      ? ' hero__sticker--xlarge'
-                      : sticker.id === 'sticker-participant' || sticker.id === 'sticker-rooms'
-                        ? ' hero__sticker--larger'
-                        : sticker.id === 'sticker-judge'
-                          ? ' hero__sticker--medium'
-                          : ''
+                    sticker.id === 'sticker-photos' ? ' hero__sticker--photos hero__sticker--larger' : ''
                   }`}
                   style={{ '--sticker-angle': `${sticker.rotation}deg` } as CSSProperties}
                 >
                   {href ? (
-                    <a href={href} target="_blank" rel="noreferrer" aria-label={sticker.name}>
+                    <a
+                      href={href}
+                      {...(sticker.sameTab ? {} : { target: '_blank', rel: 'noreferrer' })}
+                      aria-label={sticker.name}
+                    >
                       {peel}
                     </a>
                   ) : (
